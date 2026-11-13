@@ -1,0 +1,23 @@
+{
+  "name": "l3on-plugins",
+  "description": "L3ON 的 Claude Code 外掛",
+  "owner": {
+    "name": "L3ON"
+  },
+  "plugins": [
+    {
+      "name": "web-design",
+      "source": "./plugins/web-design",
+      "description": "網站設計流程（收素材、方向稿、定案規範、WCAG 2.2 AA、素材授權、SVG logo）與 Playwright 畫面驗證",
+      "dependencies": [
+        {
+          "name": "frontend-design",
+          "marketplace": "claude-plugins-official"
+        }
+      ]
+    }
+  ],
+  "allowCrossMarketplaceDependenciesOn": [
+    "claude-plugins-official"
+  ]
+}

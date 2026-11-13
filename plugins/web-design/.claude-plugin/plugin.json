@@ -1,0 +1,22 @@
+{
+  "name": "web-design",
+  "description": "網站設計流程（收素材、方向稿、定案規範、WCAG 2.2 AA、素材授權、SVG logo）與 Playwright 畫面驗證",
+  "version": "1.0.0",
+  "author": {
+    "name": "L3ON"
+  },
+  "displayName": "Web Design",
+  "keywords": [
+    "design",
+    "ui",
+    "ux",
+    "accessibility",
+    "wcag",
+    "logo",
+    "playwright",
+    "visual-testing"
+  ],
+  "license": "MIT",
+  "repository": "https://github.com/bc891119/l3on-plugins",
+  "homepage": "https://github.com/bc891119/l3on-plugins#readme"
+}
