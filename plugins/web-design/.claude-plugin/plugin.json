@@ -1,6 +1,6 @@
 {
   "name": "web-design",
-  "description": "網站設計流程（收素材、方向稿、定案規範、WCAG 2.2 AA、素材授權、SVG logo）與 Playwright 畫面驗證",
+  "description": "Human-in-the-loop website design workflow (references → direction drafts → DESIGN-SYSTEM.md) with WCAG 2.2 AA checks, asset licensing, SVG logo export and Playwright UI verification. Skills are written in Traditional Chinese. 網站設計流程與 Playwright 畫面驗證。",
   "version": "1.0.0",
   "author": {
     "name": "L3ON"
