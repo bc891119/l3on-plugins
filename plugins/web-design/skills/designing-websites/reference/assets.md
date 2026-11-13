@@ -2,6 +2,7 @@
 
 ## 目錄
 - 來源與授權
+- 圖示的打包方式
 - 下載與使用規則
 - 禁區
 - 紀錄
@@ -16,10 +17,19 @@
 | 照片／影片 | Pexels | [Pexels License](https://www.pexels.com/license/)：免費商用、可修改、不必署名；不可放進商標或品牌名稱，可辨識人物不可負面呈現或暗示代言，不可原樣販售或轉放其他圖庫 |
 | 照片／插圖 | Openverse、Wikimedia Commons | 彙整多種 CC 與公眾領域授權，**逐張看**：CC BY 要署名、NC 不可商用、ND 不可修改 |
 | 字型 | Google Fonts | 多數為 SIL OFL，可商用、可自架；個別字型以該字型頁的授權為準。中文常用：Noto Sans TC、Noto Serif TC、jf open 粉圓（OFL，偏可愛，適合親民內容） |
-| 圖示 | Lucide | ISC 授權，可商用；全站只用一套圖示，筆畫粗細一致 |
-| 圖示（其他） | Iconify | 各圖示集授權不同，逐套確認 |
+| 圖示 | Lucide | [ISC](https://lucide.dev/license)，可商用；其中源自 Feather 的圖示為 MIT。兩者都要求授權聲明隨副本保留：把授權全文放進專案並記在 `ASSETS-LICENSES.md` |
+| 圖示（其他） | Iconify（彙整多套圖示集） | 授權以圖示集為單位，[每一套不同](https://iconify.design/docs/icons/icon-set-basics.html)，逐套確認；全站只用其中一套 |
 
 不使用來源不明的圖（搜尋引擎圖片、Pinterest、別人網站上的圖）。
+
+## 圖示的打包方式
+
+圖示放在哪裡、要不要文字標籤，見 ux-patterns.md〈圖示〉；這裡只講檔案怎麼進專案。
+
+- **預設：內嵌 SVG 或建置時打包**，執行時不連外。Lucide 用框架對應的套件，或 [`lucide-static`](https://lucide.dev/guide/static)（提供個別 SVG 檔）；Iconify 的圖示集用 `@iconify-json/<圖示集代號>`（[一套一個套件](https://iconify.design/docs/icons/json.html)），由建置工具取出用到的圖示。純靜態頁直接把用到的 SVG 貼進 HTML。
+- **Iconify 的 `iconify-icon` 網頁元件預設在執行時向 Iconify API 取圖示資料**（[官方文件](https://iconify.design/docs/iconify-icon/)），要連網並依賴第三方服務。政府機關、內網、離線環境不要這樣用；真的要用這個元件，改成[自架 API](https://iconify.design/docs/api/hosting.html) 或事先把圖示資料載入。
+- 只打包用到的圖示；套件鎖精確版本，新增圖示時用同一套、同一版。
+- 套件名稱與用法會變，用之前到上面的官方頁面確認現況。
 
 ## 下載與使用規則
 

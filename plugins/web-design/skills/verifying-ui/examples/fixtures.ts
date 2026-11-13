@@ -150,11 +150,15 @@ export async function checkPage(page: Page, testInfo: TestInfo, name: string) {
   expect.soft(await a11yViolations(page), `${name} 無障礙`).toEqual([])
 }
 
-/** 開啟頁面、確認真的到達（SPA 對任何路徑都回 200，也可能被導向其他頁），再做版面與無障礙檢查。 */
-export async function visitAndCheck(page: Page, testInfo: TestInfo, path: string, name: string) {
+/**
+ * 開啟頁面、確認真的到達（SPA 對任何路徑都回 200，也可能被導向其他頁）、沒有腳本錯誤，再做版面與無障礙檢查。
+ * 腳本錯誤讓一塊畫面沒畫出來時，版面與 axe 都會少掃元素而回報通過，所以 problems 不為空就直接失敗、不往下掃。
+ */
+export async function visitAndCheck(page: Page, testInfo: TestInfo, path: string, name: string, problems: string[]) {
   const response = await page.goto(path, { waitUntil: 'networkidle' })
   expect.soft(response?.status(), `${path} 狀態碼`).toBeLessThan(400)
   expect(new URL(page.url()).pathname).toBe(path)
+  expect(problems, `${path} console error、例外與失敗請求`).toEqual([])
   await checkPage(page, testInfo, name)
 }
 
@@ -173,7 +177,7 @@ interface Fixtures {
   externalRequests: string[]
   /** 對指定頁面截圖並檢查版面與無障礙；截圖檔名自動加上 -desktop／-mobile。 */
   checkPage: (target: Page, name: string) => Promise<void>
-  /** 用 page 開啟 path 並檢查；截圖檔名同 checkPage。 */
+  /** 用 page 開啟 path，先確認 problems 為空再檢查；截圖檔名同 checkPage。 */
   visitAndCheck: (path: string, name: string) => Promise<void>
 }
 
@@ -189,8 +193,8 @@ export const test = base.extend<Options & Fixtures>({
   checkPage: async ({ device }, use, testInfo) => {
     await use((target, name) => checkPage(target, testInfo, `${name}-${device}`))
   },
-  visitAndCheck: async ({ page, device }, use, testInfo) => {
-    await use((path, name) => visitAndCheck(page, testInfo, path, `${name}-${device}`))
+  visitAndCheck: async ({ page, device, problems }, use, testInfo) => {
+    await use((path, name) => visitAndCheck(page, testInfo, path, `${name}-${device}`, problems))
   },
 })
 

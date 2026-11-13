@@ -1,9 +1,10 @@
 {
   "name": "web-design-plugin-tools",
   "private": true,
-  "description": "web-design 外掛內附腳本（截圖、商標檢索）用的 Playwright，鎖精確版本",
+  "description": "web-design 外掛內附腳本（截圖、無障礙掃描、商標檢索）用的 Playwright 與 axe-core，鎖精確版本",
   "type": "module",
   "dependencies": {
+    "axe-core": "4.14.0",
     "playwright": "1.64.1"
   }
 }

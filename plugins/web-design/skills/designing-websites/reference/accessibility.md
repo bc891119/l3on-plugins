@@ -35,12 +35,12 @@
 
 ## 工具抓不到、要人工看的項目
 
-W3C：「No tool alone can determine if a site meets accessibility standards.」（[Evaluating Web Accessibility](https://www.w3.org/WAI/test-evaluate/)）。axe 等工具只抓得到一部分問題，每批頁面人工過一次；項目涵蓋 W3C [Easy Checks](https://www.w3.org/WAI/test-evaluate/easy-checks/)：
+W3C：「No tool alone can determine if a site meets accessibility standards.」（[Evaluating Web Accessibility](https://www.w3.org/WAI/test-evaluate/)）。axe 等工具只抓得到一部分問題，而且只掃畫面上有的元素：腳本錯誤讓一整塊沒畫出來時，違規數反而變少，所以掃描前先確認頁面沒有腳本錯誤、關鍵元素都在。每批頁面人工過一次；項目涵蓋 W3C [Easy Checks](https://www.w3.org/WAI/test-evaluate/easy-checks/)：
 
 - [ ] 只用鍵盤（Tab／Shift+Tab／Enter／Space／Esc／方向鍵）能完成所有功能，焦點順序符合閱讀順序
 - [ ] 每個焦點位置都看得見焦點環，且沒被固定列、cookie 橫幅蓋住
 - [ ] 對話框開啟時焦點進入、關閉後回到觸發按鈕，背景不能被 Tab 到
-- [ ] 圖示按鈕都有 `aria-label`；裝飾圖 `alt=""`，資訊圖的 alt 說出重點
+- [ ] 純圖示按鈕都有 `aria-label`；有文字標籤的按鈕，裡面的圖示加 `aria-hidden="true"`；裝飾圖 `alt=""`，資訊圖的 alt 說出重點
 - [ ] 表單：每個欄位有可見標籤；錯誤訊息說明原因與解法，並與欄位關聯（`aria-describedby`）
 - [ ] 寬 320px、放大 200% 不破版；手機橫向也可用
 - [ ] 系統設為減少動態時，動畫關閉或改為淡入

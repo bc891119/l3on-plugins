@@ -9,8 +9,11 @@
  *   node screenshot.mjs shots design-explore/a/index.html design-explore/b/index.html
  *   node screenshot.mjs shots http://localhost:3000/ --tablet
  *
- * 輸出：<輸出資料夾>/<名稱>-desktop.png、-mobile.png（加 --tablet 多一張 -tablet.png），
- * 並列出每張圖的 console 錯誤數與是否有橫向捲軸。結束碼 0 成功、2 用法或環境錯誤、3 有頁面開不起來。
+ * 輸出：<輸出資料夾>/<名稱>-desktop.png、-mobile.png（加 --tablet 多一張 -tablet.png）整頁圖，
+ * 以及同名加 -fold 的第一屏圖（不捲動時看到的畫面；固定定位的元素在整頁圖上位置會失真，以第一屏圖為準），
+ * 並列出每張圖第一屏的可操作元素數、是否有橫向捲軸，以及 console 錯誤與未捕捉例外的內容。
+ *
+ * 結束碼：0 成功、1 有頁面出現腳本錯誤（console error 或未捕捉例外；圖片、字型等資源載入失敗也會產生 console error）、2 用法或環境錯誤、3 有頁面開不起來。
  */
 import fs from 'node:fs'
 import path from 'node:path'
@@ -45,22 +48,38 @@ fs.mkdirSync(outDir, { recursive: true })
 const browser = await launchChromium()
 const sizes = Object.entries(VIEWPORTS).filter(([device]) => device !== 'tablet' || withTablet)
 let broken = 0
+let scriptErrors = 0
+
+// 第一屏（不捲動）看得到的可操作元素數，供方向稿之間與原型比較
+const countFirstScreenControls = () => {
+  const selector = 'a[href], button, input:not([type="hidden"]), select, textarea, summary, [role="button"], [role="tab"], [role="menuitem"], [role="link"], [role="checkbox"], [role="radio"], [role="switch"], [tabindex]:not([tabindex="-1"])'
+  return [...document.querySelectorAll(selector)].filter((el) => {
+    if (el.disabled || !el.checkVisibility({ checkOpacity: true, checkVisibilityCSS: true })) return false
+    const box = el.getBoundingClientRect()
+    return box.width > 0 && box.height > 0 && box.bottom > 0 && box.top < innerHeight && box.right > 0 && box.left < innerWidth
+  }).length
+}
 
 for (const { target, url, name } of pages) {
   for (const [device, viewport] of sizes) {
     const context = await browser.newContext({ viewport, locale: 'zh-TW' })
     const page = await context.newPage()
-    let errors = 0
-    page.on('console', (message) => { if (message.type() === 'error') errors++ })
-    page.on('pageerror', () => { errors++ })
+    const errors = []
+    page.on('console', (message) => { if (message.type() === 'error') errors.push(`console: ${message.text()}`) })
+    page.on('pageerror', (error) => { errors.push(`例外: ${error.message}`) })
     const file = path.join(outDir, `${name}-${device}.png`)
     try {
       const response = await page.goto(url, { waitUntil: 'networkidle', timeout: 30_000 })
       if (response && response.status() >= 400) throw new Error(`HTTP ${response.status()}`)
       await page.evaluate(() => document.fonts.ready) // 字型載入後再截，避免截到備援字型
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)
+      const controls = await page.evaluate(countFirstScreenControls)
+      await page.screenshot({ path: file.replace(/\.png$/, '-fold.png') })
       await page.screenshot({ path: file, fullPage: true })
-      console.log(`${file}  console 錯誤 ${errors}  ${overflow > 0 ? `橫向捲軸（多 ${overflow}px）` : '無橫向捲軸'}`)
+      console.log(`${file}  第一屏可操作元素 ${controls}  ${overflow > 0 ? `橫向捲軸（多 ${overflow}px）` : '無橫向捲軸'}  腳本錯誤 ${errors.length}`)
+      for (const error of errors.slice(0, 5)) console.error(`  ${error.slice(0, 300)}`)
+      if (errors.length > 5) console.error(`  …另有 ${errors.length - 5} 則`)
+      scriptErrors += errors.length
     } catch (error) {
       broken++
       console.error(`${target}（${device}）截圖失敗：${String(error).slice(0, 200)}`)
@@ -69,4 +88,9 @@ for (const { target, url, name } of pages) {
   }
 }
 await browser.close()
-process.exit(broken ? 3 : 0)
+if (broken) process.exit(3)
+if (scriptErrors) {
+  console.error(`共有 ${scriptErrors} 則腳本錯誤，修正後再檢視截圖與執行無障礙掃描。`)
+  process.exit(1)
+}
+process.exit(0)

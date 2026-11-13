@@ -27,6 +27,8 @@ user-invocable: false
 
 所以不要從 npx 快取或其他專案的 node_modules 引用，也不要寫死 `executablePath`。
 
+只是看設計方向稿或靜態頁、不需要留下測試時，不必在專案安裝：改用 designing-websites skill 內附的 `screenshot.mjs`（截圖）與 `axe.mjs`（無障礙掃描），它們用外掛自帶的鎖版 Playwright。
+
 ## 通過條件先定義
 
 寫測試前先列每個情境的通過條件：URL、看得到的文字、API status、DB 或後台結果。沒有事先定義的條件不算驗證。
@@ -39,7 +41,7 @@ user-invocable: false
 - 登入用 setup project 存 storageState 重複使用，狀態檔不進版控（含 session cookie；[官方](https://playwright.dev/docs/auth)）；不同身分各存一份，跨系統流程開兩個 browser context。
 - 定位用 getByRole / getByLabel / getByText，不用 CSS class；等待用 web-first assertion（`await expect(...).toBeVisible()`），不用固定 sleep（[官方](https://playwright.dev/docs/best-practices)）。
 - 每個情境：桌機 1440 與手機 390 截整頁圖（fullPage），或逐一捲到每個互動區塊再截；只截首屏不算看過。改到版面時另跑 768。尺寸用兩個 project 的 `use.viewport` 設定，測試裡不寫尺寸迴圈（[官方](https://playwright.dev/docs/test-projects)）。外殼固定在視窗內、由內層面板捲動的版面，fullPage 只拍得到一個視窗，要先把視窗拉高再截（範例的 `screenshotAll`）。
-- 收集 console error、failed request，記錄 /api status。
+- 收集 console error、未捕捉的例外（pageerror）、failed request，記錄 /api status，並在測試裡 assert 為空（範例的 `visitAndCheck` 掃描前會先檢查 `problems` fixture）；預期中的錯誤（負向情境的 4xx）逐條從 `problems` 排除後自己 assert、再呼叫 `checkPage`，不整個關掉。
 - trace 設 `retain-on-failure`，失敗時回報路徑（[官方](https://playwright.dev/docs/trace-viewer)）。trace 會留下填過的密碼，登入的 setup project 不錄。
 - 流程不清楚時先用 `pnpm exec playwright cli --help` 列的指令探索，驗收依據仍是測試。
 
@@ -49,15 +51,17 @@ user-invocable: false
 
 範例實作：[examples/fixtures.ts](examples/fixtures.ts)（`test.extend` 包成 fixture），複製到專案的測試目錄後依專案調整。
 
+**先確認頁面真的畫出來，下面的檢查才有意義。** 版面檢查與 axe 都只看畫面上有的元素：腳本錯誤讓頂列或一整塊沒畫出來時，元素變少，結果反而是「違規 0」。所以每個情境在掃描前先做兩件事：assert 沒有 console error 與 pageerror（範例的 `visitAndCheck` 已內建；直接用 `checkPage` 時自己 assert `problems`）；assert 關鍵元素看得到（頂列、主要內容、主要按鈕，用 `getByRole` 加 `toBeVisible()`）。任一項失敗就先修，不看後面的數字。
+
 - 可見互動元素兩兩不重疊。要用 `checkVisibility()` 排除收合的 `<details>`，並扣掉祖先裁切的範圍，否則會大量誤報。
 - 文字不溢出容器（scrollWidth ≤ clientWidth，刻意 truncate 的除外）。
 - 中文按鈕與標籤不被擠成一字一行。
 - 無橫向捲軸（documentElement.scrollWidth ≤ innerWidth）。
-- 無障礙：裝 `@axe-core/playwright`（同樣鎖精確版本），標籤用 `wcag2a, wcag2aa, wcag21a, wcag21aa, wcag22aa`。Playwright 官方範例只列到 2.1，要加 `wcag22aa` 才會掃 WCAG 2.2 的目標尺寸。既有違規用「規則 id＋selector」指紋清單排除，不快照整份結果（[官方](https://playwright.dev/docs/accessibility-testing)）。自動掃描只抓得到部分問題，不能取代人工看（W3C：沒有任何工具能單獨判定網站是否符合無障礙標準）；鍵盤操作、焦點順序、報讀軟體要另外人工檢查。
+- 無障礙：裝 `@axe-core/playwright`（同樣鎖精確版本）。它把 `playwright-core` 宣告成版本範圍寬鬆的 peer 相依，套件管理工具可能另裝一份較新的 `playwright-core`，`new AxeBuilder({ page })` 就會出現型別錯誤；裝完用 `pnpm why playwright-core` 確認只有一個版本，有兩個就把 `playwright-core` 以和 `@playwright/test` 相同的精確版本加進 devDependencies。標籤用 `wcag2a, wcag2aa, wcag21a, wcag21aa, wcag22aa`。Playwright 官方範例只列到 2.1，要加 `wcag22aa` 才會掃 WCAG 2.2 的目標尺寸。既有違規用「規則 id＋selector」指紋清單排除，不快照整份結果（[官方](https://playwright.dev/docs/accessibility-testing)）。自動掃描只抓得到部分問題，不能取代人工看（W3C：沒有任何工具能單獨判定網站是否符合無障礙標準）；鍵盤操作、焦點順序、報讀軟體要另外人工檢查。
 - 鍵盤流程可以寫成測試：`page.keyboard.press('Tab')` 逐步走主要流程，assert 焦點落在預期元素（`toBeFocused()`）且對話框關閉後焦點回到觸發按鈕。
 - 頁面結構要防退步時，用 ARIA snapshot（`toMatchAriaSnapshot`）固定標題層級、地標與控制項名稱（[官方](https://playwright.dev/docs/aria-snapshots)）。
 
-新寫的檢查要先用故意做壞的內容確認抓得到。
+新寫的檢查要先用故意做壞的內容確認抓得到（例：故意放一個腳本語法錯誤，測試要失敗而不是回報違規 0）。
 
 ## 視覺回歸（選用）
 
