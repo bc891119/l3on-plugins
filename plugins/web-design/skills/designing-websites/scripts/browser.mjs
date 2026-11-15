@@ -11,6 +11,23 @@ import { fileURLToPath } from 'node:url'
 // scripts → designing-websites → skills → 外掛根目錄
 export const PLUGIN_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..')
 
+/** 取出 --click <選擇器>（可重複），回傳其餘參數與選擇器清單。 */
+export function takeClicks(args) {
+  const rest = []
+  const clicks = []
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] !== '--click') { rest.push(args[i]); continue }
+    if (!args[i + 1]) { console.error('--click 後面要接 CSS 選擇器'); process.exit(2) }
+    clicks.push(args[++i])
+  }
+  return { rest, clicks }
+}
+
+/** 依序點擊；找不到元素會丟錯，由呼叫端記成失敗。 */
+export async function clickAll(page, clicks) {
+  for (const selector of clicks) await page.locator(selector).first().click({ timeout: 5_000 })
+}
+
 export async function launchChromium() {
   let chromium
   try {

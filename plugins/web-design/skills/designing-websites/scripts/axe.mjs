@@ -4,12 +4,12 @@
  * 給沒有 Node 專案的靜態頁與方向稿用；有 Node 的專案照 verifying-ui skill 寫進專案自己的 Playwright 測試。
  *
  * 用法：
- *   node axe.mjs <網址或 HTML 檔>... [--open-details]
+ *   node axe.mjs <網址或 HTML 檔>... [--open-details] [--click <選擇器>]...
  * 例：
  *   node axe.mjs final/index.html final/meeting.html
  *   node axe.mjs http://localhost:3000/ --open-details
  *
- * 掃描的是頁面載入後的狀態：關著的抽屜、對話框、選單不在範圍內，要掃就另外用測試打開後再掃。
+ * 掃描的是頁面載入後的狀態：關著的抽屜、對話框、選單不在範圍內，要掃就加 --click 先點開（依序點，每種狀態跑一次）。
  * --open-details：掃描前先展開所有 <details>。
  *
  * 頁面有腳本錯誤（console error 或未捕捉例外；圖片、字型等資源載入失敗也會產生 console error）時不掃描，直接算失敗：
@@ -22,16 +22,16 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { createRequire } from 'node:module'
 import { pathToFileURL } from 'node:url'
-import { launchChromium, PLUGIN_ROOT } from './browser.mjs'
+import { launchChromium, takeClicks, clickAll, PLUGIN_ROOT } from './browser.mjs'
 
 const VIEWPORTS = { desktop: { width: 1440, height: 900 }, mobile: { width: 390, height: 844 } }
 // wcag22aa 要明列，否則不會檢查 WCAG 2.2 的目標尺寸
 const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']
-const args = process.argv.slice(2)
+const { rest: args, clicks } = takeClicks(process.argv.slice(2))
 const openDetails = args.includes('--open-details')
 const targets = [...new Set(args.filter(a => a !== '--open-details'))]
 if (targets.length === 0) {
-  console.error('用法：node axe.mjs <網址或 HTML 檔>... [--open-details]')
+  console.error('用法：node axe.mjs <網址或 HTML 檔>... [--open-details] [--click <選擇器>]...')
   process.exit(2)
 }
 
@@ -73,6 +73,7 @@ for (const { target, url } of pages) {
         for (const error of errors.slice(0, 5)) console.error(`  ${error.slice(0, 300)}`)
         if (errors.length > 5) console.error(`  …另有 ${errors.length - 5} 則`)
       } else {
+        await clickAll(page, clicks)
         if (openDetails) await page.evaluate(() => { for (const el of document.querySelectorAll('details')) el.open = true })
         await page.addScriptTag({ path: axePath })
         const result = await page.evaluate(tags => window.axe.run(document, { runOnly: { type: 'tag', values: tags } }), TAGS)

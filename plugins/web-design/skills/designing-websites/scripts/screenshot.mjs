@@ -4,13 +4,16 @@
  * 這是看設計用的輕量截圖；專案功能的畫面驗收仍照 verifying-ui skill 用專案自己的 Playwright 測試。
  *
  * 用法：
- *   node screenshot.mjs <輸出資料夾> <網址或 HTML 檔>... [--tablet]
+ *   node screenshot.mjs <輸出資料夾> <網址或 HTML 檔>... [--tablet] [--click <選擇器>]...
  * 例：
  *   node screenshot.mjs shots design-explore/a/index.html design-explore/b/index.html
  *   node screenshot.mjs shots http://localhost:3000/ --tablet
+ *   node screenshot.mjs shots/history design-explore/a/index.html --click '#open-history'
  *
  * 輸出：<輸出資料夾>/<名稱>-desktop.png、-mobile.png（加 --tablet 多一張 -tablet.png）整頁圖，
  * 以及同名加 -fold 的第一屏圖（不捲動時看到的畫面；固定定位的元素在整頁圖上位置會失真，以第一屏圖為準），
+ * --click：載入後先依序點這些元素再截（抽屜、選單、分頁打開後的畫面），頁面不必為了截圖加程式；每種狀態用各自的輸出資料夾。
+ * 外殼固定在視窗內、由內層面板捲動的版面，整頁圖會先把視窗拉高到看得見被捲掉的內容再截。
  * 並列出每張圖第一屏的可操作元素數、是否有橫向捲軸，以及 console 錯誤與未捕捉例外的內容。
  *
  * 結束碼：0 成功、1 有頁面出現腳本錯誤（console error 或未捕捉例外；圖片、字型等資源載入失敗也會產生 console error）、2 用法或環境錯誤、3 有頁面開不起來。
@@ -18,16 +21,16 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { launchChromium } from './browser.mjs'
+import { launchChromium, takeClicks, clickAll } from './browser.mjs'
 
 // 與 verifying-ui 相同的尺寸：桌機 1440、手機 390；平板 768 在改到版面時加看
 const VIEWPORTS = { desktop: { width: 1440, height: 900 }, mobile: { width: 390, height: 844 }, tablet: { width: 768, height: 1024 } }
 
-const args = process.argv.slice(2)
+const { rest: args, clicks } = takeClicks(process.argv.slice(2))
 const withTablet = args.includes('--tablet')
 const [outDir, ...targets] = args.filter(a => a !== '--tablet')
 if (!outDir || targets.length === 0) {
-  console.error('用法：node screenshot.mjs <輸出資料夾> <網址或 HTML 檔>... [--tablet]')
+  console.error('用法：node screenshot.mjs <輸出資料夾> <網址或 HTML 檔>... [--tablet] [--click <選擇器>]...')
   process.exit(2)
 }
 
@@ -72,9 +75,17 @@ for (const { target, url, name } of pages) {
       const response = await page.goto(url, { waitUntil: 'networkidle', timeout: 30_000 })
       if (response && response.status() >= 400) throw new Error(`HTTP ${response.status()}`)
       await page.evaluate(() => document.fonts.ready) // 字型載入後再截，避免截到備援字型
+      await clickAll(page, clicks)
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)
       const controls = await page.evaluate(countFirstScreenControls)
       await page.screenshot({ path: file.replace(/\.png$/, '-fold.png') })
+      // 內層面板捲動的版面，fullPage 只拍得到一個視窗：把視窗拉高到最長的那個面板看得完
+      const hidden = await page.evaluate(() => Math.max(0, ...[...document.querySelectorAll('body *')].map((el) => {
+        if (!/auto|scroll/.test(getComputedStyle(el).overflowY) || !el.checkVisibility()) return 0
+        const box = el.getBoundingClientRect()
+        return box.bottom > 0 && box.top < innerHeight && box.right > 0 && box.left < innerWidth ? el.scrollHeight - el.clientHeight : 0
+      })))
+      if (hidden > 0) await page.setViewportSize({ width: viewport.width, height: viewport.height + hidden })
       await page.screenshot({ path: file, fullPage: true })
       console.log(`${file}  第一屏可操作元素 ${controls}  ${overflow > 0 ? `橫向捲軸（多 ${overflow}px）` : '無橫向捲軸'}  腳本錯誤 ${errors.length}`)
       for (const error of errors.slice(0, 5)) console.error(`  ${error.slice(0, 300)}`)

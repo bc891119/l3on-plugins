@@ -29,6 +29,7 @@
 - **預設：內嵌 SVG 或建置時打包**，執行時不連外。Lucide 用框架對應的套件，或 [`lucide-static`](https://lucide.dev/guide/static)（提供個別 SVG 檔）；Iconify 的圖示集用 `@iconify-json/<圖示集代號>`（[一套一個套件](https://iconify.design/docs/icons/json.html)），由建置工具取出用到的圖示。純靜態頁直接把用到的 SVG 貼進 HTML。
 - **Iconify 的 `iconify-icon` 網頁元件預設在執行時向 Iconify API 取圖示資料**（[官方文件](https://iconify.design/docs/iconify-icon/)），要連網並依賴第三方服務。政府機關、內網、離線環境不要這樣用；真的要用這個元件，改成[自架 API](https://iconify.design/docs/api/hosting.html) 或事先把圖示資料載入。
 - 只打包用到的圖示；套件鎖精確版本，新增圖示時用同一套、同一版。
+- 建置工具掃原始碼找圖示時，只抓得到寫成完整字串的名稱（例 [Nuxt Icon](https://nuxt.com/modules/icon/bundles)），動態組出的名稱要另外列入設定。漏掉的圖示在離線環境會是空白、建置不報錯，驗證時斷網截圖看一次。
 - 套件名稱與用法會變，用之前到上面的官方頁面確認現況。
 
 ## 下載與使用規則

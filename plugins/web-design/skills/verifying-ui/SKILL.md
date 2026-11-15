@@ -47,7 +47,7 @@ user-invocable: false
 
 ## 版面與無障礙檢查（測試內 assert）
 
-版面四項是本 skill 自訂的輔助檢查，用來抓跑版；無障礙掃描照 Playwright 官方做法。
+前四項版面檢查是本 skill 自訂的輔助檢查，用來抓跑版；間距一項用量的，不靠目測；無障礙掃描照 Playwright 官方做法。
 
 範例實作：[examples/fixtures.ts](examples/fixtures.ts)（`test.extend` 包成 fixture），複製到專案的測試目錄後依專案調整。
 
@@ -55,6 +55,7 @@ user-invocable: false
 
 - 可見互動元素兩兩不重疊。要用 `checkVisibility()` 排除收合的 `<details>`，並扣掉祖先裁切的範圍，否則會大量誤報。
 - 文字不溢出容器（scrollWidth ≤ clientWidth，刻意 truncate 的除外）。
+- 間距：改到版面時用 `boundingBox()` 量，列成表看：同層面板內容離左右兩邊的距離一致；hover／選取的底色不貼到相鄰元素；同一組卡片等寬，附加的按鈕不讓卡片大小不一。
 - 中文按鈕與標籤不被擠成一字一行。
 - 無橫向捲軸（documentElement.scrollWidth ≤ innerWidth）。
 - 無障礙：裝 `@axe-core/playwright`（同樣鎖精確版本）。它把 `playwright-core` 宣告成版本範圍寬鬆的 peer 相依，套件管理工具可能另裝一份較新的 `playwright-core`，`new AxeBuilder({ page })` 就會出現型別錯誤；裝完用 `pnpm why playwright-core` 確認只有一個版本，有兩個就把 `playwright-core` 以和 `@playwright/test` 相同的精確版本加進 devDependencies。標籤用 `wcag2a, wcag2aa, wcag21a, wcag21aa, wcag22aa`。Playwright 官方範例只列到 2.1，要加 `wcag22aa` 才會掃 WCAG 2.2 的目標尺寸。既有違規用「規則 id＋selector」指紋清單排除，不快照整份結果（[官方](https://playwright.dev/docs/accessibility-testing)）。自動掃描只抓得到部分問題，不能取代人工看（W3C：沒有任何工具能單獨判定網站是否符合無障礙標準）；鍵盤操作、焦點順序、報讀軟體要另外人工檢查。
