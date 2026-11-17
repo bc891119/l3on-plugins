@@ -1,6 +1,6 @@
 ---
 name: designing-websites
-description: 網站與網頁介面的設計流程：向使用者收素材、調研、資訊分層、提 2～3 個方向稿供挑選與退件、定案寫 DESIGN-SYSTEM.md，含 WCAG 2.2 AA 檢查、主流 UI/UX 規範、圖示用法、素材搜尋與授權紀錄、SVG logo 與 favicon 產出。做新網站、landing page、改版、新介面視覺、配色字型、找圖片素材、設計 logo 時載入；專案已有 DESIGN-SYSTEM.md 時用來照規範擴充。
+description: 網站與網頁介面的設計流程：向使用者收素材、調研、資訊分層、提 2～3 個方向稿供挑選與退件、定案寫 DESIGN-SYSTEM.md，含 WCAG 2.2 AA 檢查、主流 UI/UX 規範、圖示用法、素材搜尋與授權紀錄、SVG logo 與 favicon 產出。做新網站、landing page、改版、新介面視覺、配色字型、找圖片素材、設計 logo 時載入；專案已有 DESIGN-SYSTEM.md 時用來照規範擴充。只要求先說明做法、還不動手時也先載入。
 argument-hint: "[要設計的網站或頁面｜logo｜素材]"
 ---
 
@@ -64,7 +64,7 @@ argument-hint: "[要設計的網站或頁面｜logo｜素材]"
 讀 [reference/distinctive-design.md](reference/distinctive-design.md) 再發想。
 
 - 特色先從資訊安排與排版來，再色彩，最後才是圖形；借實物只取原則與功能，不取外觀。
-- 每個方向只做**一個關鍵畫面**（首頁首屏，或工具型產品最常用的畫面），用真實內容，不用佔位文字。圖示在這一步就決定並畫上去（ux-patterns.md〈圖示〉），不留到第 7 步。
+- 每個方向只做**一個關鍵畫面**（首頁首屏，或工具型產品最常用的畫面），用真實內容，不用佔位文字。圖示在這一步就決定並畫上去，主要操作配看得到的文字標籤（ux-patterns.md〈圖示〉），不留到第 7 步。
 - 方向之間的**資訊安排**要不同，不只換顏色字型；至少一個方向是「第一屏只留主要任務」的版本。
 - 方向稿放專案內不進版控的目錄（例 `design-explore/<方向名>/`，是 git repo 時加進 `.gitignore`），靜態 HTML 即可。專案已選定元件庫（例 Nuxt UI、MUI）時改用元件庫做，元件的預設長相與行為才會出現在畫面上。
 - 截圖用內附的 `screenshot.mjs`（見〈腳本〉，不需要專案安裝任何東西）：桌機 1440 與手機 390 各一張，自己逐張用 Read 看過。結束碼不是 0 就先修，不拿壞掉的頁面去截圖與檢查。

@@ -3,6 +3,19 @@
 本檔格式依 [Keep a Changelog](https://keepachangelog.com/zh-TW/1.1.0/)，版本號依 [Semantic Versioning](https://semver.org/lang/zh-TW/)。
 各外掛獨立編號，git tag 為 `<外掛名>--v<版本>`。
 
+## web-design 1.2.1 - 2026-11-17
+
+### Changed
+
+- 兩個 skill 的 description 加上「只要求先說明做法、還不動手時也先載入」：Sonnet 與 Haiku 收到「先不要動手」時常不載入外掛。
+- `designing-websites` 第 4 步：圖示那句補上「主要操作配看得到的文字標籤」。
+- README：模型建議用 Sonnet 或 Opus，Haiku 在全權委託的長流程會漏掉步驟。
+- Evals：`cross-repo-plan` 的評審改為一個檔案判一項；`new-site` 的收素材一項，開始前唯讀查看專案不算違反。
+
+### Added
+
+- Evals：新增 `brand-color` 情境，確認品牌色撞到現成風格清單時保留品牌色。
+
 ## web-design 1.2.0 - 2026-11-16
 
 ### Changed

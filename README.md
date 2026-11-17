@@ -33,7 +33,7 @@ L3ON 的 Claude Code 外掛市集。
 
 ## 需求
 
-- Claude Code
+- Claude Code；模型建議用 Sonnet 或 Opus。Haiku 在使用者全權委託的長流程會漏掉步驟（例：獨立審查）
 - Python 3（對比檢查與 logo 匯出腳本，只用標準函式庫）
 - Node.js 與 npm（截圖、無障礙掃描與商標檢索腳本；Playwright 與 axe-core 由外掛的 `package-lock.json` 鎖版，安裝外掛時自動裝好）
 - Chromium：第一次用截圖、無障礙掃描或商標檢索時下載一次（約 150MB），腳本會印出指令
