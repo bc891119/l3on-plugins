@@ -23,9 +23,16 @@ export function takeClicks(args) {
   return { rest, clicks }
 }
 
-/** 依序點擊；找不到元素會丟錯，由呼叫端記成失敗。 */
+/** 依序點擊；找不到元素會丟錯，由呼叫端記成失敗。點完等進場動畫跑完，否則會截到、掃到淡入一半的浮層。 */
 export async function clickAll(page, clicks) {
   for (const selector of clicks) await page.locator(selector).first().click({ timeout: 5_000 })
+  if (clicks.length === 0) return
+  await page.evaluate(async () => {
+    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))) // 等框架把浮層畫出來、動畫開始
+    const finite = document.getAnimations().filter(animation => Number.isFinite(animation.effect?.getComputedTiming().endTime))
+    // 被取消的動畫會 reject；最多等 3 秒，不讓異常的動畫卡住
+    await Promise.race([Promise.allSettled(finite.map(animation => animation.finished)), new Promise(resolve => setTimeout(resolve, 3000))])
+  })
 }
 
 export async function launchChromium() {

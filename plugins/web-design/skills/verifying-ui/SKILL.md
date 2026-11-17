@@ -40,6 +40,7 @@ user-invocable: false
 - 長期有價值的放專案測試目錄；一次性的放不進版控的子目錄。截圖輸出用 `--output <暫存目錄>/<本次名稱>`：Playwright 開跑前會清空這個目錄，所以每次用各自的子目錄，不要指到放了其他東西的目錄。
 - 登入用 setup project 存 storageState 重複使用，狀態檔不進版控（含 session cookie；[官方](https://playwright.dev/docs/auth)）；不同身分各存一份，跨系統流程開兩個 browser context。
 - 定位用 getByRole / getByLabel / getByText，不用 CSS class；等待用 web-first assertion（`await expect(...).toBeVisible()`），不用固定 sleep（[官方](https://playwright.dev/docs/best-practices)）。
+- 測試預設模擬淺色系統（[官方](https://playwright.dev/docs/emulation#color-scheme-and-media)）。網站支援深色模式時，加一個 `use.colorScheme: 'dark'` 的 project 再跑一輪；不支援時確認頁面已鎖成淺色。
 - 每個情境：桌機 1440 與手機 390 截整頁圖（fullPage），或逐一捲到每個互動區塊再截；只截首屏不算看過。改到版面時另跑 768。尺寸用兩個 project 的 `use.viewport` 設定，測試裡不寫尺寸迴圈（[官方](https://playwright.dev/docs/test-projects)）。外殼固定在視窗內、由內層面板捲動的版面，fullPage 只拍得到一個視窗，要先把視窗拉高再截（範例的 `screenshotAll`）。
 - 收集 console error、未捕捉的例外（pageerror）、failed request，記錄 /api status，並在測試裡 assert 為空（範例的 `visitAndCheck` 掃描前會先檢查 `problems` fixture）；預期中的錯誤（負向情境的 4xx）逐條從 `problems` 排除後自己 assert、再呼叫 `checkPage`，不整個關掉。
 - trace 設 `retain-on-failure`，失敗時回報路徑（[官方](https://playwright.dev/docs/trace-viewer)）。trace 會留下填過的密碼，登入的 setup project 不錄。
@@ -55,7 +56,7 @@ user-invocable: false
 
 - 可見互動元素兩兩不重疊。要用 `checkVisibility()` 排除收合的 `<details>`，並扣掉祖先裁切的範圍，否則會大量誤報。
 - 文字不溢出容器（scrollWidth ≤ clientWidth，刻意 truncate 的除外）。
-- 間距：改到版面時用 `boundingBox()` 量，列成表看：同層面板內容離左右兩邊的距離一致；hover／選取的底色不貼到相鄰元素；同一組卡片等寬，附加的按鈕不讓卡片大小不一。
+- 間距：改到版面時用 `boundingBox()` 量，列成表看：同層面板內容離左右兩邊的距離一致；hover／選取的底色不貼到相鄰元素；同一組卡片等寬，附加的按鈕不讓卡片大小不一；輸入框裡的圖示、按鈕和輸入框的垂直中心差距在 1px 內（幾 px 的偏移截圖看不出來）。
 - 中文按鈕與標籤不被擠成一字一行。
 - 無橫向捲軸（documentElement.scrollWidth ≤ innerWidth）。
 - 無障礙：裝 `@axe-core/playwright`（同樣鎖精確版本）。它把 `playwright-core` 宣告成版本範圍寬鬆的 peer 相依，套件管理工具可能另裝一份較新的 `playwright-core`，`new AxeBuilder({ page })` 就會出現型別錯誤；裝完用 `pnpm why playwright-core` 確認只有一個版本，有兩個就把 `playwright-core` 以和 `@playwright/test` 相同的精確版本加進 devDependencies。標籤用 `wcag2a, wcag2aa, wcag21a, wcag21aa, wcag22aa`。Playwright 官方範例只列到 2.1，要加 `wcag22aa` 才會掃 WCAG 2.2 的目標尺寸。既有違規用「規則 id＋selector」指紋清單排除，不快照整份結果（[官方](https://playwright.dev/docs/accessibility-testing)）。自動掃描只抓得到部分問題，不能取代人工看（W3C：沒有任何工具能單獨判定網站是否符合無障礙標準）；鍵盤操作、焦點順序、報讀軟體要另外人工檢查。

@@ -3,6 +3,25 @@
 本檔格式依 [Keep a Changelog](https://keepachangelog.com/zh-TW/1.1.0/)，版本號依 [Semantic Versioning](https://semver.org/lang/zh-TW/)。
 各外掛獨立編號，git tag 為 `<外掛名>--v<版本>`。
 
+## web-design 1.3.0 - 2026-11-17
+
+### Added
+
+- `screenshot.mjs`、`axe.mjs`：新增 `--dark`，模擬深色系統再截圖或掃描。不加時是淺色，跟著系統切深色的頁面只截淺色會漏掉深字疊深底。
+
+### Changed
+
+- `designing-websites` 第 2 步：調研同類產品時也記下普遍有的視覺元素（主視覺、插圖、照片）；使用者說樣式不要參考，是不照抄，不是不記。
+- `designing-websites` 第 3 步：第一屏的主要任務若是自己提議、使用者只是同意，再列一個候選，標在分層表上一起確認，並各做成方向稿。
+- `designing-websites` 第 4 步：同類產品普遍有主視覺或插圖時，方向稿就放上自己畫的示意圖；頁面會跟著系統切深色時，先決定鎖淺色或兩種都截。
+- `designing-websites` 第 5 步：定案前把主要的「按了才有」畫面（搜尋、選單、對話框）做出來給使用者看。
+- `designing-websites` 第 8 步：浮層和頁面用同一套標準逐張看（桌機與手機、空的與有內容的狀態）；自己加的全站樣式要排除元件庫已有同類樣式的元件。
+- `verifying-ui`：間距量測加上輸入框裡的圖示、按鈕與輸入框的垂直中心；網站支援深色模式時加一個深色的 project。
+
+### Fixed
+
+- `screenshot.mjs`、`axe.mjs`：`--click` 點完後等進場動畫跑完，原本會截到、掃到淡入一半的浮層。
+
 ## web-design 1.2.1 - 2026-11-17
 
 ### Changed

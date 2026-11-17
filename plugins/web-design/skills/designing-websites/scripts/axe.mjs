@@ -4,13 +4,14 @@
  * 給沒有 Node 專案的靜態頁與方向稿用；有 Node 的專案照 verifying-ui skill 寫進專案自己的 Playwright 測試。
  *
  * 用法：
- *   node axe.mjs <網址或 HTML 檔>... [--open-details] [--click <選擇器>]...
+ *   node axe.mjs <網址或 HTML 檔>... [--open-details] [--dark] [--click <選擇器>]...
  * 例：
  *   node axe.mjs final/index.html final/meeting.html
  *   node axe.mjs http://localhost:3000/ --open-details
  *
  * 掃描的是頁面載入後的狀態：關著的抽屜、對話框、選單不在範圍內，要掃就加 --click 先點開（依序點，每種狀態跑一次）。
  * --open-details：掃描前先展開所有 <details>。
+ * --dark：模擬深色系統（prefers-color-scheme: dark）；不加時是淺色。
  *
  * 頁面有腳本錯誤（console error 或未捕捉例外；圖片、字型等資源載入失敗也會產生 console error）時不掃描，直接算失敗：
  * axe 只檢查畫面上有的元素，沒畫出來的部分不會產生違規。
@@ -29,9 +30,10 @@ const VIEWPORTS = { desktop: { width: 1440, height: 900 }, mobile: { width: 390,
 const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']
 const { rest: args, clicks } = takeClicks(process.argv.slice(2))
 const openDetails = args.includes('--open-details')
-const targets = [...new Set(args.filter(a => a !== '--open-details'))]
+const colorScheme = args.includes('--dark') ? 'dark' : 'light'
+const targets = [...new Set(args.filter(a => a !== '--open-details' && a !== '--dark'))]
 if (targets.length === 0) {
-  console.error('用法：node axe.mjs <網址或 HTML 檔>... [--open-details] [--click <選擇器>]...')
+  console.error('用法：node axe.mjs <網址或 HTML 檔>... [--open-details] [--dark] [--click <選擇器>]...')
   process.exit(2)
 }
 
@@ -58,7 +60,7 @@ let failed = 0
 for (const { target, url } of pages) {
   for (const [device, viewport] of sizes) {
     // bypassCSP：頁面的 CSP 不允許注入腳本時仍能載入 axe
-    const context = await browser.newContext({ viewport, locale: 'zh-TW', bypassCSP: true })
+    const context = await browser.newContext({ viewport, locale: 'zh-TW', colorScheme, bypassCSP: true })
     const page = await context.newPage()
     const errors = []
     page.on('console', (message) => { if (message.type() === 'error') errors.push(`console: ${message.text()}`) })
