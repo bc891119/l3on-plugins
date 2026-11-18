@@ -2,7 +2,7 @@
  * 內附腳本共用：載入外掛自帶的 Playwright 並啟動 Chromium。
  * 套件由外掛根目錄的 package.json／package-lock.json 鎖版，安裝外掛時 Claude Code 會自動裝好；
  * 從本機路徑載入外掛（開發中）時要自己在外掛根目錄跑一次 npm ci --ignore-scripts。
- * 瀏覽器本體不隨套件安裝，第一次使用要下載一次（約 150MB）。
+ * 瀏覽器本體不隨套件安裝，第一次使用要下載一次（下載約 330MB、解壓後約 680MB；Playwright 1.64.1 在 Linux x64 實測）。
  */
 import { createRequire } from 'node:module'
 import path from 'node:path'
@@ -48,7 +48,7 @@ export async function launchChromium() {
   } catch (error) {
     const message = String(error)
     if (/Executable doesn't exist|playwright install/.test(message)) {
-      console.error(`這一版 Playwright 對應的 Chromium 還沒下載。執行一次（約 150MB，下載到使用者的瀏覽器快取）：\n  cd "${PLUGIN_ROOT}" && npx playwright install chromium\nLinux 若提示缺系統函式庫，改用 npx playwright install --with-deps chromium（需要 sudo）。`)
+      console.error(`這一版 Playwright 對應的 Chromium 還沒下載。執行一次（下載約 330MB、解壓後約 680MB，放在使用者的瀏覽器快取）：\n  cd "${PLUGIN_ROOT}" && npx playwright install chromium\nLinux 若提示缺系統函式庫，改用 npx playwright install --with-deps chromium（需要 sudo）。`)
     } else {
       console.error(`Chromium 啟動失敗：${message.slice(0, 400)}`)
     }

@@ -137,10 +137,15 @@ export async function a11yViolations(page: Page, known: string[] = []): Promise<
 /** 外殼固定在視窗內、由面板捲動時，fullPage 只拍得到一個視窗，所以先把視窗拉高到看得見被捲掉的內容再截。 */
 async function screenshotAll(page: Page, path: string) {
   const viewport = page.viewportSize()!
-  const hidden = await page.evaluate(() => Math.max(0, ...[...document.querySelectorAll('body *')].map(el => el.scrollHeight - el.clientHeight)))
-  await page.setViewportSize({ width: viewport.width, height: viewport.height + hidden })
+  // 只算看得見、在視窗內、會捲動（overflow auto／scroll）的元素；overflow: hidden 的裁切容器不算
+  const hidden = await page.evaluate(() => Math.max(0, ...[...document.querySelectorAll('body *')].map((el) => {
+    if (!/auto|scroll/.test(getComputedStyle(el).overflowY) || !el.checkVisibility()) return 0
+    const box = el.getBoundingClientRect()
+    return box.bottom > 0 && box.top < innerHeight && box.right > 0 && box.left < innerWidth ? el.scrollHeight - el.clientHeight : 0
+  })))
+  if (hidden > 0) await page.setViewportSize({ width: viewport.width, height: viewport.height + hidden })
   await page.screenshot({ path, fullPage: true })
-  await page.setViewportSize(viewport)
+  if (hidden > 0) await page.setViewportSize(viewport)
 }
 
 /** 截整頁圖，版面與無障礙問題記為 soft 失敗。 */

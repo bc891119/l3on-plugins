@@ -2,7 +2,7 @@
 """SVG logo 匯出點陣檔：各尺寸 PNG、apple-touch-icon（180）、favicon.ico（16/32/48）。
 
 用法：
-  python3 export_logo.py logo.svg out/ [--favicon favicon.svg]
+  python3 export_logo.py logo.svg out/ [--favicon favicon.svg] [--touch-bg <色值>]
 
 --favicon 給簡化版 SVG 時，16/32/48 與 favicon.ico 用簡化版產出（小尺寸看得清楚）。
 需要任一 SVG 轉檔工具：cairosvg、rsvg-convert、ImageMagick（magick）或 Inkscape，依此順序找。

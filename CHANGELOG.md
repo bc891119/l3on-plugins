@@ -3,6 +3,54 @@
 本檔格式依 [Keep a Changelog](https://keepachangelog.com/zh-TW/1.1.0/)，版本號依 [Semantic Versioning](https://semver.org/lang/zh-TW/)。
 各外掛獨立編號，git tag 為 `<外掛名>--v<版本>`。
 
+## web-design 2.2.1 - 2026-11-18
+
+### Fixed
+
+- `axe.mjs`：`--click`、`--open-details` 之後沒有再檢查腳本錯誤，點開才出錯的頁面會回報「違規 0」、結束碼 0。現在點開後再查一次，有錯誤就印「點開後腳本錯誤」、不掃描、結束碼 1。
+- `contrast.py`：檔案不存在時印 traceback；色票檔裡有格式、色值或類型錯誤時結束碼為 1，和「不合格」分不出來。現在這兩種情況都回 2，和直接給兩個色值時一致；有錯誤的行優先於不合格。
+- `screenshot.mjs`：輸出資料夾建不了時印 Node 的 traceback、結束碼 1，和「有腳本錯誤」分不出來。現在印原因、結束碼 2。
+- `verifying-ui` 範例 `screenshotAll`：原本把所有元素的 `scrollHeight - clientHeight` 都算進去，`overflow: hidden` 的裁切容器、看不見的元素會把視窗拉得過高。改成和 `screenshot.mjs` 相同的篩選（`overflow` 為 auto／scroll、看得見、在視窗內）。
+- Chromium 大小由「約 150MB」改為實測的「下載約 330MB、解壓後約 680MB」（Playwright 1.64.1、Linux x64）。
+- `SKILL.md`：
+  - 「後三支用 Node」改為後兩支（`tipo_search.mjs` 在 2.0.0 已刪除）；
+  - `export_logo.py` 補上 `logo-48.png` 與 `--touch-bg`；
+  - 方向稿通過條件改成引用 direction-review.md 的 11 項，不再列一份不完整的名稱。
+- `verifying-ui`：「前四項版面檢查」改為前五項。
+- Evals：`logo` 的評分條件原本把「CMYK 印刷 PDF」判為失敗，和 `logo.md` 的 brief 收印刷、招牌用途矛盾。現在只判「宣稱腳本能直接產出 .ai／CMYK」為失敗，建議另外製作印刷檔不算。
+- repo 首頁 README：拿掉 2.0.0 已刪除的商標檢索（5d55645，2.2.0 之後提交）。
+
+### Changed
+
+- 規則用詞對齊一手來源：
+  - 焦點環完全被蓋住由「屬 2.4.7 不合格」改為「很可能不符合」（W3C 原文 "would likely fail"）；
+  - 深色模式由「越上層越亮」改為「不一定是反轉；疊在前面的介面（popover、sheet）較亮」（Apple HIG）；
+  - 表單標籤由「左側」改為「欄位旁邊」，選填欄位分別寫出 Baymard（should）與 NN/g（nice perk）的說法；
+  - 40 字改引用 DADS 的 accessibility 子頁；
+  - 字距由「小字、大標題」改成 DADS 標準文字樣式的逐級對應（45px `0`、28～36px `0.01em`、26px 以下 `0.02em`）；
+  - 2.2.2 寫明 5 秒只適用移動、閃爍、捲動的內容，自動更新的內容沒有 5 秒門檻；
+  - 14px 補上「原則上」；
+  - 對比手法不超過三種限定在複雜的畫面（NN/g）；
+  - 主要按鈕改照 GOV.UK 原文「一個頁面避免多個主要按鈕」；
+  - Playwright 預設淺色與 `mask` 的連結改到記載它們的 API 頁。
+- 規定做法但沒有可用性依據的規則，改成只寫要達到的結果：
+  - 1.4.4 拿掉「字級用 rem」（瀏覽器縮放即可達成）；
+  - 2.4.1 的「跳到主要內容」連結改為連結、地標或區塊標題擇一；
+  - 「每頁一個 h1」與範本的「以 h1 開頭」統一成同一句，並標明是慣例、不是 WCAG 準則；
+  - `assets.md` 拿掉「單色 currentColor 線稿」（與〈AI 生成圖〉的風格給使用者挑衝突）。
+- 同一條規則只在有來源的那一處寫完整，其他地方改成一句引用：14px、主要按鈕數量、自動播放 5 秒、方向稿提一次生圖工具。
+- repo 首頁 README〈更新〉補上 `claude plugin update web-design@l3on-plugins`，並說明只更新市集清單不會更新已安裝的外掛。
+- `screenshot.mjs` 說明的「設計稿」改為「方向稿」。
+
+### Added
+
+- Evals：
+  - `ai-imagery`：生成前報張數並先給風格選、模型授權與存檔、標語用 HTML 疊並以最差位置算對比；
+  - `brief-conditions`：逐條對需求文件，並分辨螢幕解析度與瀏覽器可視範圍；
+  - `dark-mode`：Nuxt UI 跟著系統切深色、截圖工具預設淺色時，先決定鎖淺色或兩種都截。
+  - `brief-conditions`、`dark-mode` 用 Opus 跑時沒外掛也多半通過，分不出有沒有外掛，用途是防止規則被改壞。
+- Evals：新增 `evals-exec/run-scripts`，在 sandbox 裡實際執行 `contrast.py`，從執行紀錄比對腳本輸出，並檢查回報的結束碼、不合格組與修法。要授權 Bash 與 sandbox，另用 `--eval-dir evals-exec --scaffold --allow-tools Bash` 執行。`axe.mjs`、`screenshot.mjs` 沒有放進這個案例：eval 的 sandbox 不讓工作目錄與暫存目錄寫入，Chromium 啟動不了。
+
 ## web-design 2.2.0 - 2026-11-18
 
 ### Added

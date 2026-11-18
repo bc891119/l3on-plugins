@@ -13,7 +13,8 @@
  * --open-details：掃描前先展開所有 <details>。
  * --dark：模擬深色系統（prefers-color-scheme: dark）；不加時是淺色。
  *
- * 頁面有腳本錯誤（console error 或未捕捉例外；圖片、字型等資源載入失敗也會產生 console error）時不掃描，直接算失敗：
+ * 頁面有腳本錯誤（console error 或未捕捉例外；圖片、字型等資源載入失敗也會產生 console error）時不掃描，直接算失敗；
+ * 載入後查一次，--click／--open-details 做完再查一次：
  * axe 只檢查畫面上有的元素，沒畫出來的部分不會產生違規。
  *
  * 結束碼：0 沒有違規、1 有違規或有頁面出現腳本錯誤、2 用法或環境錯誤、3 有頁面開不起來。
@@ -69,14 +70,25 @@ for (const { target, url } of pages) {
       const response = await page.goto(url, { waitUntil: 'networkidle', timeout: 30_000 })
       if (response && response.status() >= 400) throw new Error(`HTTP ${response.status()}`)
       await page.evaluate(() => document.fonts.ready)
+      // 載入後查一次；點開抽屜、展開 details 之後再查一次：點擊才觸發的錯誤也會讓浮層沒畫出來
+      let stage = '腳本錯誤'
+      if (!errors.length) {
+        await clickAll(page, clicks)
+        if (openDetails) {
+          // toggle 事件在展開之後才觸發：等兩個畫面更新，它的錯誤才收得到
+          await page.evaluate(async () => {
+            for (const el of document.querySelectorAll('details')) el.open = true
+            await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))
+          })
+        }
+        stage = '點開後腳本錯誤'
+      }
       if (errors.length) {
         failed++
-        console.log(`${target}（${device}）  腳本錯誤 ${errors.length}，未掃描`)
+        console.log(`${target}（${device}）  ${stage} ${errors.length}，未掃描`)
         for (const error of errors.slice(0, 5)) console.error(`  ${error.slice(0, 300)}`)
         if (errors.length > 5) console.error(`  …另有 ${errors.length - 5} 則`)
       } else {
-        await clickAll(page, clicks)
-        if (openDetails) await page.evaluate(() => { for (const el of document.querySelectorAll('details')) el.open = true })
         await page.addScriptTag({ path: axePath })
         const result = await page.evaluate(tags => window.axe.run(document, { runOnly: { type: 'tag', values: tags } }), TAGS)
         const nodes = result.violations.reduce((sum, violation) => sum + violation.nodes.length, 0)

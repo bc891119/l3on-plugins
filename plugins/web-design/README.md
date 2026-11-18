@@ -50,6 +50,12 @@ claude mcp add --transport http fal https://mcp.fal.ai/mcp-relay
 claude plugin eval . --judge-model sonnet --threshold 0.8
 ```
 
+`evals-exec/` 的案例會實際執行內附腳本，要授權 Bash，而 Bash 只在 OS sandbox 內執行（Linux 需要 bubblewrap 與 socat，Ubuntu 另要照 [sandbox 文件](https://code.claude.com/docs/en/sandboxing#add-an-apparmor-profile-for-bubblewrap) 處理 AppArmor；[eval 說明](https://code.claude.com/docs/en/plugin-evals)）。目前只涵蓋 `contrast.py`：eval 的 sandbox 不讓工作目錄寫入，Chromium 啟動不了：
+
+```bash
+claude plugin eval . --eval-dir evals-exec --scaffold --allow-tools Bash --judge-model sonnet
+```
+
 ## License
 
 [MIT](../../LICENSE)

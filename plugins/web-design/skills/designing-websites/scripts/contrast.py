@@ -10,7 +10,8 @@ pairs.txt 每行：前景 背景 [類型] [# 說明]
        large = 大字 3:1（>= 24px，或粗體 >= 18.66px）
        ui = 圖示、輸入框框線、焦點環等辨識元件或狀態所需的非文字 3:1（WCAG 1.4.11；裝飾線與有文字的按鈕外框不必列）
 色值：#rgb、#rrggbb、rgb(r g b) / rgb(r,g,b)、oklch(L C H)（L 可為 0-1 或百分比）
-有任何一組不合格時結束碼為 1。
+結束碼：0 全部通過、1 有不合格、2 用法錯誤、讀不到檔案，或檔案裡有格式、色值、類型錯誤
+（有錯誤的行沒有檢查到，結果不完整，所以優先於 1）。
 """
 import math
 import re
@@ -107,27 +108,35 @@ def main(argv):
     if len(argv) != 1:
         print(__doc__)
         return 2
-    all_ok, n = True, 0
-    with open(argv[0], encoding="utf-8") as f:
-        for lineno, raw in enumerate(f, 1):
-            stripped = raw.strip()
-            # 空行與「# 開頭＋空白」的整行註解略過；#rrggbb 色值不會被當成註解
-            if not stripped or stripped == "#" or stripped.startswith("# "):
-                continue
-            # 行尾說明以「 # 」（前後空白）分隔
-            line, _, note = stripped.partition(" # ")
-            parts = re.findall(r"(?:rgba?|oklch)\([^)]*\)|\S+", line)
-            if len(parts) not in (2, 3):
-                print(f"第 {lineno} 行格式錯誤：需要「前景 背景 [類型]」，實際為「{line}」")
-                all_ok = False
-                continue
-            try:
-                all_ok &= check(*parts, note=note.strip())
-                n += 1
-            except ValueError as e:
-                print(f"第 {lineno} 行：{e}")
-                all_ok = False
-    if n == 0 and all_ok:
+    try:
+        with open(argv[0], encoding="utf-8") as f:
+            lines = f.readlines()
+    except (OSError, UnicodeDecodeError) as e:
+        print(f"讀不到檔案「{argv[0]}」：{e}")
+        return 2
+    all_ok, bad, n = True, 0, 0
+    for lineno, raw in enumerate(lines, 1):
+        stripped = raw.strip()
+        # 空行與「# 開頭＋空白」的整行註解略過；#rrggbb 色值不會被當成註解
+        if not stripped or stripped == "#" or stripped.startswith("# "):
+            continue
+        # 行尾說明以「 # 」（前後空白）分隔
+        line, _, note = stripped.partition(" # ")
+        parts = re.findall(r"(?:rgba?|oklch)\([^)]*\)|\S+", line)
+        if len(parts) not in (2, 3):
+            print(f"第 {lineno} 行格式錯誤：需要「前景 背景 [類型]」，實際為「{line}」")
+            bad += 1
+            continue
+        try:
+            all_ok &= check(*parts, note=note.strip())
+            n += 1
+        except ValueError as e:
+            print(f"第 {lineno} 行：{e}")
+            bad += 1
+    if bad:
+        print(f"共 {n} 組已檢查，{bad} 行有錯誤沒有檢查：修正後重跑")
+        return 2
+    if n == 0:
         print("沒有讀到任何色票組合：每行要有「前景 背景 [類型]」")
         return 2
     print(f"共 {n} 組，{'全部通過' if all_ok else '有不合格'}")

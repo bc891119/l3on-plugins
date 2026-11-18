@@ -43,7 +43,7 @@
 
 規則：
 
-- 一個畫面一個主要動作。
+- 主要按鈕的數量見〈元件與互動慣例〉。
 - 「功能不能少」指每個功能都找得到，不是都在第一層。
 - 原型的版面結構（幾欄、什麼同時攤開）不是需求，除非使用者說是。
 - 每一項收起來的代價寫出來：誰會多按一下、寬螢幕時要不要改成常駐。
@@ -73,10 +73,10 @@
 下面是可用性研究的結論，管的是好不好用，不管長相；版型、風格、放不放圖由方向決定。
 
 - **Landing／官網首頁**：首屏看得出這是什麼、能做什麼；按鈕文字寫明按了會怎樣；什麼都強調等於沒強調（[NN/g](https://www.nngroup.com/articles/homepage-design-principles/)）。行動版首屏也要看得到主要按鈕。
-- **表單**：單欄排列，相關的短欄位（縣市與郵遞區號、年月日）可同列（[Baymard](https://baymard.com/blog/avoid-multi-column-forms)）；標籤多半放欄位上方，很長的桌機表單可放左側（[NN/g](https://www.nngroup.com/articles/web-form-design/)）；必填欄位都標出來，選填也標更好（[NN/g](https://www.nngroup.com/articles/required-fields/)、[Baymard](https://baymard.com/blog/required-optional-form-fields)）；錯誤多半等離開欄位後才顯示，新密碼這類複雜輸入可以邊打邊驗（[NN/g](https://www.nngroup.com/articles/errors-forms-design-guidelines/)）；送出按鈕寫出結果（「建立帳號」而非「送出」）。
+- **表單**：單欄排列，相關的短欄位（縣市與郵遞區號、年月日）可同列（[Baymard](https://baymard.com/blog/avoid-multi-column-forms)）；標籤預設放欄位正上方，極長的桌機表單可放在欄位旁邊（[NN/g](https://www.nngroup.com/articles/web-form-design/)）；必填欄位都標出來；選填欄位 Baymard 建議結帳與長的註冊表單也標（兩種都標，[Baymard](https://baymard.com/blog/required-optional-form-fields)），NN/g 認為標了是加分（"nice perk"，[NN/g](https://www.nngroup.com/articles/required-fields/)）；錯誤多半等離開欄位後才顯示，新密碼這類複雜輸入可以邊打邊驗（[NN/g](https://www.nngroup.com/articles/errors-forms-design-guidelines/)）；送出按鈕寫出結果（「建立帳號」而非「送出」）。
 - **儀表板／工具型產品**：最常用的任務放在第一層，其餘照〈資訊分層〉收；分組先試留白，不夠再加框（[NN/g](https://www.nngroup.com/articles/common-region/)）；空狀態說明下一步；表格支援排序、篩選、欄寬。
 - **電商**：商品頁、搜尋、購物車、結帳依 [Baymard](https://baymard.com/research/methodology) 的研究（例如允許訪客結帳、運費提早揭露、商品圖可放大）。做電商時上網查 Baymard 對應主題的公開文章。
-- **內容／文件**：閱讀欄寬以約 40 個中文字為參考值（DADS；WCAG 1.4.8 是 AAA），有摘要、標題幫助閱讀時可以更寬；目錄可跳轉；標題層級清楚。
+- **內容／文件**：閱讀欄寬以約 40 個全形字為參考值（[DADS](https://design.digital.go.jp/dads/foundations/typography/accessibility/)；WCAG 1.4.8 是 AAA），有摘要、標題幫助閱讀時可以更寬；目錄可跳轉；標題層級清楚。
 
 ## 中文排版
 
@@ -84,7 +84,7 @@
 
 - 內文與 UI **16px 以上**；**低於 14px 原則上不用**，14px 只用在頁尾等附屬資訊。
 - 內文行高 **至少 1.5**，長文建議 1.7 左右；CSS 用無單位數值。
-- 字距隨字級調整：小字 `0.02em`，大標題 `0` 或 `0.01em`。
+- 字距隨字級調整：DADS 的標準文字樣式 45px 用 `0`，28～36px 用 `0.01em`，26px 以下用 `0.02em`。
 - 字型：黑體、明體各管什麼由方向決定，寫進規範。數字欄位用 `tabular-nums`。
 - 中文字型多半沒有真正的斜體，是電腦硬拉斜的；強調優先用字重、顏色或著重號。
 - 標題、按鈕與短句不在詞中間斷行：用 `<wbr>` 標出可以斷的位置並加 `word-break: keep-all`（[CSS Text 4](https://www.w3.org/TR/css-text-4/#word-break-property)）；`text-wrap: balance` 讓各行長度接近（[MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/text-wrap)）。桌機與手機之間的寬度也拉幾個看。
@@ -92,8 +92,8 @@
 
 ## 元件與互動慣例
 
-- 主要按鈕一個畫面一個；危險、難復原的動作要和一般按鈕分得出來，不只靠紅色（[GOV.UK](https://design-system.service.gov.uk/components/button/)）。
+- 一個頁面避免放多個主要（預設樣式）按鈕，主要行動多了反而不知道下一步按哪個；危險、難復原的動作要和一般按鈕分得出來，不只靠紅色（[GOV.UK](https://design-system.service.gov.uk/components/button/)）。
 - 圖示搭配一直看得到的文字；純圖示按鈕的條件見〈圖示〉。
-- 動效要有目的；時長約 100～500ms，越常出現的越短（[NN/g](https://www.nngroup.com/articles/animation-duration/)）；自動播放超過 5 秒的要能暫停（WCAG 2.2.2）；遵守 `prefers-reduced-motion`。
-- 深色模式：每個 token 有深色值，不是直接反轉；越上層的面越亮（[Apple HIG](https://developer.apple.com/design/human-interface-guidelines/dark-mode)）。
+- 動效要有目的；時長約 100～500ms，越常出現的越短（[NN/g](https://www.nngroup.com/articles/animation-duration/)）；自動播放與減少動態見 accessibility.md（2.2.2）。
+- 深色模式：每個 token 有深色值，不一定是淺色的反轉（有些顏色反轉、有些不反轉）；疊在前面的介面（popover、sheet）用較亮的底色，讓它看起來浮在前面（[Apple HIG](https://developer.apple.com/design/human-interface-guidelines/dark-mode) 的 base／elevated）。
 - RWD：行動優先；斷點處理頁面骨架，元件內部用 container queries。

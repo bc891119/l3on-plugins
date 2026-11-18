@@ -67,12 +67,12 @@ argument-hint: "[要設計的網站或頁面｜logo｜素材]"
 - 特色先從資訊安排與排版來，再色彩，最後才是圖形；借實物只取原則與功能，不取外觀。
 - 每個方向只做**一個關鍵畫面**（首頁首屏，或工具型產品最常用的畫面），用真實內容，不用佔位文字。圖示在這一步就決定並畫上去，主要操作配看得到的文字標籤（ux-patterns.md〈圖示〉），不留到第 7 步。
 - 方向之間的**資訊安排**要不同，不只換顏色字型；至少一個方向是「第一屏只留主要任務」的版本。
-- 同類產品普遍有主視覺或插圖時，方向稿就放上示意圖（自己畫 SVG；對話裡有生圖工具時可以用，見 reference/assets.md〈AI 生成圖〉），說明裡寫正式素材打算怎麼來，不留到第 7 步。示意圖是自己畫的 SVG 時，在這一句裡提一次「也可以接生圖工具」當來源選項，不點名服務、不要求安裝。
+- 同類產品普遍有主視覺或插圖時，方向稿就放上示意圖（自己畫 SVG；對話裡有生圖工具時可以用，見 reference/assets.md〈AI 生成圖〉），說明裡寫正式素材打算怎麼來，不留到第 7 步。示意圖是自己畫的 SVG 時，照 assets.md〈AI 生成圖〉在這一句提一次生圖工具的選項。
 - 方向稿放專案內不進版控的目錄（例 `design-explore/<方向名>/`，是 git repo 時加進 `.gitignore`），靜態 HTML 即可。專案已選定元件庫（例 Nuxt UI、MUI）時改用元件庫做，元件的預設長相與行為才會出現在畫面上。
 - 截圖用內附的 `screenshot.mjs`（見〈腳本〉，不需要專案安裝任何東西）：桌機 1440 與手機 390 各一張，自己逐張用 Read 看過。結束碼不是 0 就先修，不拿壞掉的頁面去截圖與檢查。
-- 截圖工具模擬的是淺色系統（[Playwright](https://playwright.dev/docs/emulation#color-scheme-and-media)），使用者的系統可能是深色。頁面會跟著系統切深色時（元件庫可能預設開啟，例 Nuxt UI），這一步先決定：不做深色就鎖成淺色；要做就加 `--dark` 再截一輪，兩種都逐張看。
+- 截圖工具模擬的是淺色系統（Playwright 的 `colorScheme` 預設 `light`，[API](https://playwright.dev/docs/api/class-browser#browser-new-context-option-color-scheme)），使用者的系統可能是深色。頁面會跟著系統切深色時（元件庫可能預設開啟，例 Nuxt UI），這一步先決定：不做深色就鎖成淺色；要做就加 `--dark` 再截一輪，兩種都逐張看。
 - 每個方向先跑 `python3 ${CLAUDE_SKILL_DIR}/scripts/contrast.py <色票檔>` 檢查色票，不合格的先修。
-- 給使用者看之前，每個方向先過 [reference/direction-review.md](reference/direction-review.md) 的「通過條件」（第一眼測試、第一屏可操作元素數、使用情境、換題測試、圖示、UX 四項、需求文件的條件），結果寫進方向稿說明。不過的先改，不拿去給人挑。
+- 給使用者看之前，每個方向先過 [reference/direction-review.md](reference/direction-review.md) 的「通過條件」（共 11 項，從第一眼測試到需求文件的條件），結果寫進方向稿說明。不過的先改，不拿去給人挑。
 - 用 AskUserQuestion 請使用者選一個方向（附截圖路徑與使用者開得到的預覽網址），也可以要求混合。
 
 ### 5. 退件迭代（人工檢查點④）
@@ -106,13 +106,13 @@ argument-hint: "[要設計的網站或頁面｜logo｜素材]"
 
 ## 腳本
 
-腳本在 `${CLAUDE_SKILL_DIR}/scripts/`。前兩支只需要 Python 3；後三支用 Node 與外掛自帶、鎖版的 Playwright，任何目錄都能執行。第一次執行若提示缺套件或缺 Chromium，照訊息裡的指令跑一次即可（下載 Chromium 約 150MB，先告訴使用者）。
+腳本在 `${CLAUDE_SKILL_DIR}/scripts/`。前兩支只需要 Python 3；後兩支用 Node 與外掛自帶、鎖版的 Playwright，任何目錄都能執行。第一次執行若提示缺套件或缺 Chromium，照訊息裡的指令跑一次即可（Chromium 下載約 330MB、解壓後約 680MB，先告訴使用者）。
 
-- `contrast.py`：算 WCAG 對比。輸入檔每行一組 `前景 背景 [類型]`，類型 `text`（4.5:1，預設）、`large`（3:1，24px 或 18.66px 粗體以上）、`ui`（3:1，圖示、輸入框框線、焦點環；裝飾線與有文字的按鈕外框不必列）。色值支援 `#rgb`、`#rrggbb`、`rgb()`、`oklch()`；半透明色要先換成疊在背景上之後的實色。也可直接給兩個色值：`contrast.py "#767676" "#ffffff"`。有不合格時結束碼為 1。
-- `export_logo.py <logo.svg> <輸出資料夾> [--favicon favicon.svg]`：產出 PNG 512/256/128/64/32/16、`apple-touch-icon.png`（180）、`favicon.ico`（16/32/48）。需要一個 SVG 轉檔工具（cairosvg、rsvg-convert、ImageMagick 或 Inkscape 任一）；都沒有時腳本會印出安裝方式。
+- `contrast.py`：算 WCAG 對比。輸入檔每行一組 `前景 背景 [類型]`，類型 `text`（4.5:1，預設）、`large`（3:1，24px 或 18.66px 粗體以上）、`ui`（3:1，圖示、輸入框框線、焦點環；裝飾線與有文字的按鈕外框不必列）。色值支援 `#rgb`、`#rrggbb`、`rgb()`、`oklch()`；半透明色要先換成疊在背景上之後的實色。也可直接給兩個色值：`contrast.py "#767676" "#ffffff"`。結束碼：0 全部通過、1 有不合格、2＝用法或格式錯誤（含讀不到檔案、色票檔裡有無法解析的行）。
+- `export_logo.py <logo.svg> <輸出資料夾> [--favicon favicon.svg] [--touch-bg <色值>]`：產出 `logo-<尺寸>.png`（512/256/128/64；48/32/16 有給 `--favicon` 時用簡化版畫）、`apple-touch-icon.png`（180，iOS 不支援透明，底色用 `--touch-bg`，預設白）、`favicon.ico`（16/32/48）。需要一個 SVG 轉檔工具（cairosvg、rsvg-convert、ImageMagick 或 Inkscape 任一）；都沒有時腳本會印出安裝方式。
 
 - `screenshot.mjs <輸出資料夾> <網址或 HTML 檔>... [--tablet] [--size <寬>x<高>]... [--dark] [--click <選擇器>]...`：每頁截桌機 1440 與手機 390 的整頁圖與第一屏圖（檔名加 `-fold`；`--tablet` 加 768；`--size 1920x1080` 加截指定尺寸，可重複；`--dark` 模擬深色系統；`--click` 先點開抽屜、選單再截；每種狀態用各自的輸出資料夾），並回報第一屏可操作元素數、有無橫向捲軸、console 錯誤與未捕捉例外的內容。有腳本錯誤時結束碼為 1（圖照截，但不算通過）。給方向稿與設計檢視用，不取代 verifying-ui 的專案驗收測試。
-- `axe.mjs <網址或 HTML 檔>... [--open-details] [--dark] [--click <選擇器>]...`：每頁在桌機與手機尺寸各跑一次 axe-core（WCAG 2.0～2.2 的 A 與 AA），列出違規的規則與元素、需人工判斷的項目。有違規或頁面有腳本錯誤時結束碼為 1（有腳本錯誤的頁面不掃描）。只掃載入後的狀態；`--open-details` 先展開所有 `<details>`，`--click` 先點開抽屜、對話框再掃，`--dark` 模擬深色系統。
+- `axe.mjs <網址或 HTML 檔>... [--open-details] [--dark] [--click <選擇器>]...`：每頁在桌機與手機尺寸各跑一次 axe-core（WCAG 2.0～2.2 的 A 與 AA），列出違規的規則與元素、需人工判斷的項目。有違規或頁面有腳本錯誤時結束碼為 1（載入後，或 `--click`、`--open-details` 點開後出現腳本錯誤的頁面不掃描）。只掃載入後的狀態；`--open-details` 先展開所有 `<details>`，`--click` 先點開抽屜、對話框再掃，`--dark` 模擬深色系統。
 
 ## 不要做
 
@@ -121,4 +121,4 @@ argument-hint: "[要設計的網站或頁面｜logo｜素材]"
 - 不要套現成風格或題材扮裝（判斷方法在 distinctive-design.md 的「換題測試」，不是比對清單）。
 - 不要自己審自己就算過了檢查點：使用者不在時用獨立審查，並在報告寫明。
 - 不要把圖庫照片放進 logo；不要用來源與授權不明的素材。
-- 不要只靠顏色傳達狀態；不要用低於 14px 的文字（行內上標等例外要撐足點擊範圍）。
+- 不要只靠顏色傳達狀態；字級下限照 ux-patterns.md〈中文排版〉（DADS：低於 14px 原則上不用；行內上標等例外要撐足點擊範圍）。

@@ -40,7 +40,7 @@ user-invocable: false
 - 長期有價值的放專案測試目錄；一次性的放不進版控的子目錄。截圖輸出用 `--output <暫存目錄>/<本次名稱>`：Playwright 開跑前會清空這個目錄，所以每次用各自的子目錄，不要指到放了其他東西的目錄。
 - 登入用 setup project 存 storageState 重複使用，狀態檔不進版控（含 session cookie；[官方](https://playwright.dev/docs/auth)）；不同身分各存一份，跨系統流程開兩個 browser context。
 - 定位用 getByRole / getByLabel / getByText，不用 CSS class；等待用 web-first assertion（`await expect(...).toBeVisible()`），不用固定 sleep（[官方](https://playwright.dev/docs/best-practices)）。
-- 測試預設模擬淺色系統（[官方](https://playwright.dev/docs/emulation#color-scheme-and-media)）。網站支援深色模式時，加一個 `use.colorScheme: 'dark'` 的 project 再跑一輪；不支援時確認頁面已鎖成淺色。
+- 測試預設模擬淺色系統（`colorScheme` 預設 `light`，[官方 API](https://playwright.dev/docs/api/class-browser#browser-new-context-option-color-scheme)）。網站支援深色模式時，加一個 `use.colorScheme: 'dark'` 的 project 再跑一輪；不支援時確認頁面已鎖成淺色。
 - 每個情境：桌機 1440 與手機 390 截整頁圖（fullPage），或逐一捲到每個互動區塊再截；只截首屏不算看過。改到版面時另跑 768。尺寸用兩個 project 的 `use.viewport` 設定，測試裡不寫尺寸迴圈（[官方](https://playwright.dev/docs/test-projects)）。外殼固定在視窗內、由內層面板捲動的版面，fullPage 只拍得到一個視窗，要先把視窗拉高再截（範例的 `screenshotAll`）。
 - 收集 console error、未捕捉的例外（pageerror）、failed request，記錄 /api status，並在測試裡 assert 為空（範例的 `visitAndCheck` 掃描前會先檢查 `problems` fixture）；預期中的錯誤（負向情境的 4xx）逐條從 `problems` 排除後自己 assert、再呼叫 `checkPage`，不整個關掉。
 - trace 設 `retain-on-failure`，失敗時回報路徑（[官方](https://playwright.dev/docs/trace-viewer)）。trace 會留下填過的密碼，登入的 setup project 不錄。
@@ -48,7 +48,7 @@ user-invocable: false
 
 ## 版面與無障礙檢查（測試內 assert）
 
-前四項版面檢查是本 skill 自訂的輔助檢查，用來抓跑版；間距一項用量的，不靠目測；無障礙掃描照 Playwright 官方做法。
+前五項版面檢查是本 skill 自訂的輔助檢查，用來抓跑版；間距一項用量的，不靠目測；無障礙掃描照 Playwright 官方做法。
 
 範例實作：[examples/fixtures.ts](examples/fixtures.ts)（`test.extend` 包成 fixture），複製到專案的測試目錄後依專案調整。
 
@@ -71,7 +71,7 @@ user-invocable: false
 
 - 第一次執行產生基準圖，要進版控並在 review 時看差異；刻意改版後用 `--update-snapshots` 更新。
 - 基準圖依瀏覽器與作業系統分開，不同機器的字型與繪製會不同：比對要在產生基準圖的同一種環境跑（例如都在 CI 的同一個容器映像）。
-- 會變動的內容（時間、輪播、隨機資料）用 `stylePath` 的 CSS 隱藏或 `mask` 遮住；截圖前把滑鼠移開避免 hover 樣式。
+- 會變動的內容（時間、輪播、隨機資料）用 `stylePath` 的 CSS 隱藏或 `mask` 遮住（兩個選項見 [toHaveScreenshot API](https://playwright.dev/docs/api/class-pageassertions#page-assertions-to-have-screenshot-1)）；截圖前把滑鼠移開避免 hover 樣式。
 - 還在迭代的頁面不要加，基準圖會一直變；這時靠下面的人工檢視。
 
 ## 檢視截圖

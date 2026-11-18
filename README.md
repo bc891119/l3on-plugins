@@ -36,7 +36,7 @@ L3ON 的 Claude Code 外掛市集。
 - Claude Code；模型建議用 Sonnet 或 Opus。Haiku 在使用者全權委託的長流程會漏掉步驟（例：獨立審查）
 - Python 3（對比檢查與 logo 匯出腳本，只用標準函式庫）
 - Node.js 與 npm（截圖與無障礙掃描腳本；Playwright 與 axe-core 由外掛的 `package-lock.json` 鎖版，安裝外掛時自動裝好）
-- Chromium：第一次用截圖或無障礙掃描時下載一次（約 150MB），腳本會印出指令
+- Chromium：第一次用截圖或無障礙掃描時下載一次（下載約 330MB、解壓後約 680MB，Linux x64 實測），腳本會印出指令
 - logo 匯出另需任一 SVG 轉檔工具：cairosvg、rsvg-convert、ImageMagick 或 Inkscape（沒有時腳本會印出安裝方式）
 - 專案的畫面驗收測試：專案自己安裝 `@playwright/test` 與 `@axe-core/playwright`（skill 會引導，並要求鎖精確版本）
 - 相依外掛：官方 `frontend-design`（來自 Claude Code 內建的官方市集 `claude-plugins-official`，安裝 web-design 時自動一併安裝）
@@ -51,11 +51,14 @@ L3ON 的 Claude Code 外掛市集。
 
 ## 更新
 
-發行新版時會遞增 `plugins/web-design/.claude-plugin/plugin.json` 的 `version`，並記在 `CHANGELOG.md`。使用者執行：
+發行新版時會遞增 `plugins/web-design/.claude-plugin/plugin.json` 的 `version`，並記在 `CHANGELOG.md`。在 shell 執行：
 
+```bash
+claude plugin marketplace update l3on-plugins   # 更新市集清單
+claude plugin update web-design@l3on-plugins    # 更新已安裝的外掛
 ```
-/plugin marketplace update l3on-plugins
-```
+
+只跑第一行不會更新已安裝的外掛；也可以在 `/plugin` 的 Installed 分頁選 Update now。更新後在對話中執行 `/reload-plugins` 套用（[官方說明](https://code.claude.com/docs/en/plugins/install)）。
 
 ## 開發
 
@@ -63,6 +66,7 @@ L3ON 的 Claude Code 外掛市集。
 (cd plugins/web-design && npm ci --ignore-scripts)   # 從本機路徑載入外掛時要自己裝一次
 claude plugin validate .                    # 檢查市集與外掛格式
 claude plugin eval plugins/web-design --judge-model sonnet --threshold 0.8   # 跑 evals（有外掛 vs 無外掛），報告在 plugins/web-design/evals/results/；評審是 AI，單次結果會浮動，看多次執行的平均
+(cd plugins/web-design && claude plugin eval . --eval-dir evals-exec --scaffold --allow-tools Bash --judge-model sonnet)   # 實際執行腳本的案例；需要 sandbox（Linux：bubblewrap 與 socat）
 ```
 
 ## 授權

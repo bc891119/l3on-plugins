@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * 方向稿與設計稿截圖：每個網址或本機 HTML 檔各截桌機與手機整頁圖。
+ * 方向稿截圖：每個網址或本機 HTML 檔各截桌機與手機整頁圖。
  * 這是看設計用的輕量截圖；專案功能的畫面驗收仍照 verifying-ui skill 用專案自己的 Playwright 測試。
  *
  * 用法：
@@ -58,7 +58,12 @@ const maxDepth = Math.max(...targets.map(target => segments(target).length))
 while (depth < maxDepth && new Set(targets.map(target => nameWith(target, depth))).size < new Set(targets).size) depth++
 
 const pages = [...new Set(targets)].map(target => ({ target, url: toUrl(target), name: nameWith(target, depth) }))
-fs.mkdirSync(outDir, { recursive: true })
+try {
+  fs.mkdirSync(outDir, { recursive: true })
+} catch (error) {
+  console.error(`建不了輸出資料夾「${outDir}」：${error.message}`)
+  process.exit(2)
+}
 const browser = await launchChromium()
 const sizes = Object.entries(VIEWPORTS).filter(([device]) => device !== 'tablet' || withTablet)
 let broken = 0
