@@ -3,6 +3,12 @@
 本檔格式依 [Keep a Changelog](https://keepachangelog.com/zh-TW/1.1.0/)，版本號依 [Semantic Versioning](https://semver.org/lang/zh-TW/)。
 各外掛獨立編號，git tag 為 `<外掛名>--v<版本>`。
 
+## web-design 2.1.0 - 2026-11-18
+
+### Changed
+
+- `designing-websites` 第 4 步：示意圖是自己畫的 SVG 時，方向稿說明寫正式素材來源的那一句提一次「也可以接生圖工具」。不點名服務、不要求安裝；原本完全不提，沒讀 README 的人不知道有這個選項。
+
 ## web-design 2.0.0 - 2026-11-18
 
 ### Removed
