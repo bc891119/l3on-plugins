@@ -6,10 +6,14 @@
 
 --favicon 給簡化版 SVG 時，16/32/48 與 favicon.ico 用簡化版產出（小尺寸看得清楚）。
 需要任一 SVG 轉檔工具：cairosvg、rsvg-convert、ImageMagick（magick）或 Inkscape，依此順序找。
+--touch-bg 只接受 #rgb 或 #rrggbb（四種轉檔工具都接受的寫法），預設 #ffffff。
 ICO 用標準函式庫組成（PNG 內嵌格式，瀏覽器與 Windows Vista 以上都支援）。
+
+結束碼：0 完成、1 轉檔失敗、2 用法或環境錯誤（色值不合法、找不到 SVG、沒有轉檔工具）。
 """
 import argparse
 import os
+import re
 import shutil
 import struct
 import subprocess
@@ -18,6 +22,7 @@ import sys
 LOGO_SIZES = [512, 256, 128, 64]        # 品牌指南與社群頭像常用尺寸
 FAVICON_SIZES = [16, 32, 48]            # 瀏覽器分頁、Windows 捷徑
 APPLE_TOUCH = 180                       # iOS 主畫面圖示
+HEX_COLOR = re.compile(r"#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})")
 
 
 INSTALL_HELP = """找不到 SVG 轉檔工具。安裝任一個後重跑：
@@ -51,10 +56,15 @@ def command(tool, path, svg, png, size, background):
     return cmd + ([f"--export-background={background}", "--export-background-opacity=1"] if background else [])
 
 
+def fail(message, code):
+    print(message, file=sys.stderr)
+    sys.exit(code)
+
+
 def render(converter, svg, png, size, background=None):
     r = subprocess.run(command(*converter, svg, png, size, background), capture_output=True, text=True)
     if r.returncode != 0 or not os.path.isfile(png):
-        sys.exit(f"轉檔失敗（{os.path.basename(png)}，工具 {converter[0]}）：{r.stderr.strip()}")
+        fail(f"轉檔失敗（{os.path.basename(png)}，工具 {converter[0]}）：{r.stderr.strip()}", 1)
 
 
 def build_ico(pngs, out):
@@ -83,12 +93,15 @@ def main():
     p.add_argument("--touch-bg", default="#ffffff", help="apple-touch-icon 底色（iOS 不支援透明，預設白）")
     a = p.parse_args()
 
-    converter = find_converter()
-    if not converter:
-        sys.exit(INSTALL_HELP)
+    # 先檢查參數再找工具：轉檔工具遇到看不懂的底色多半不報錯，會產出底色不對的圖
+    if not HEX_COLOR.fullmatch(a.touch_bg):
+        fail(f"--touch-bg 的色值不合法：{a.touch_bg}（要寫成 #rgb 或 #rrggbb，例 --touch-bg '#1f2937'）", 2)
     for f in [a.svg] + ([a.favicon] if a.favicon else []):
         if not os.path.isfile(f):
-            sys.exit(f"找不到 SVG：{f}")
+            fail(f"找不到 SVG：{f}", 2)
+    converter = find_converter()
+    if not converter:
+        fail(INSTALL_HELP, 2)
     os.makedirs(a.outdir, exist_ok=True)
     small_src = a.favicon or a.svg
 

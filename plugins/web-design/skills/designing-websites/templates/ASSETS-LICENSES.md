@@ -4,7 +4,7 @@
 
 | 檔案 | 類型 | 來源網址 | 作者 | 授權 | 下載日期 | 用在哪裡 | 修改 |
 |---|---|---|---|---|---|---|---|
-| public/images/hero.avif | 照片 | https://unsplash.com/photos/<id> | <攝影師> | Unsplash License | YYYY-MM-DD | 首頁首屏 | 裁切、壓縮 |
+| public/images/hero.avif | 照片 | https://unsplash.com/photos/<id> | <攝影師> | Unsplash License | YYYY-MM-DD | 首頁第一屏 | 裁切、壓縮 |
 | Noto Sans TC | 字型 | https://fonts.google.com/noto/specimen/Noto+Sans+TC | Google | SIL OFL 1.1 | YYYY-MM-DD | 全站內文 | 無 |
 | lucide 圖示 | 圖示 | https://lucide.dev | Lucide Contributors | ISC | YYYY-MM-DD | 全站 | 無 |
 

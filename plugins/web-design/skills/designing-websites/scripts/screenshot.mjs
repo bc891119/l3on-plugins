@@ -22,11 +22,9 @@
  */
 import fs from 'node:fs'
 import path from 'node:path'
-import { pathToFileURL } from 'node:url'
-import { launchChromium, takeClicks, clickAll } from './browser.mjs'
+import { launchChromium, takeClicks, clickAll, toUrl, collectErrors, printErrors, VIEWPORTS as BASE_VIEWPORTS } from './browser.mjs'
 
-// 與 verifying-ui 相同的尺寸：桌機 1440、手機 390；平板 768 在改到版面時加看
-const VIEWPORTS = { desktop: { width: 1440, height: 900 }, mobile: { width: 390, height: 844 }, tablet: { width: 768, height: 1024 } }
+const VIEWPORTS = { ...BASE_VIEWPORTS }
 
 const USAGE = '用法：node screenshot.mjs <輸出資料夾> <網址或 HTML 檔>... [--tablet] [--size <寬>x<高>]... [--dark] [--click <選擇器>]...'
 const { rest: allArgs, clicks } = takeClicks(process.argv.slice(2))
@@ -45,11 +43,6 @@ if (!outDir || targets.length === 0) {
   process.exit(2)
 }
 
-const toUrl = (target) => {
-  if (/^https?:\/\//.test(target)) return target
-  if (!fs.existsSync(target)) { console.error(`找不到檔案：${target}`); process.exit(2) }
-  return pathToFileURL(path.resolve(target)).href
-}
 // 檔名取路徑最後幾段；多個方向都叫 index.html 時逐步多取一段，直到彼此不重複
 const segments = target => target.replace(/^https?:\/\//, '').replace(/\.html?$/, '').split(/[\/\\]+/).filter(Boolean)
 const nameWith = (target, depth) => segments(target).slice(-depth).join('-').replace(/[^\w.\-一-鿿]+/g, '_') || 'page'
@@ -83,9 +76,7 @@ for (const { target, url, name } of pages) {
   for (const [device, viewport] of sizes) {
     const context = await browser.newContext({ viewport, locale: 'zh-TW', colorScheme })
     const page = await context.newPage()
-    const errors = []
-    page.on('console', (message) => { if (message.type() === 'error') errors.push(`console: ${message.text()}`) })
-    page.on('pageerror', (error) => { errors.push(`例外: ${error.message}`) })
+    const errors = collectErrors(page)
     const file = path.join(outDir, `${name}-${device}.png`)
     try {
       const response = await page.goto(url, { waitUntil: 'networkidle', timeout: 30_000 })
@@ -104,8 +95,7 @@ for (const { target, url, name } of pages) {
       if (hidden > 0) await page.setViewportSize({ width: viewport.width, height: viewport.height + hidden })
       await page.screenshot({ path: file, fullPage: true })
       console.log(`${file}  第一屏可操作元素 ${controls}  ${overflow > 0 ? `橫向捲軸（多 ${overflow}px）` : '無橫向捲軸'}  腳本錯誤 ${errors.length}`)
-      for (const error of errors.slice(0, 5)) console.error(`  ${error.slice(0, 300)}`)
-      if (errors.length > 5) console.error(`  …另有 ${errors.length - 5} 則`)
+      printErrors(errors)
       scriptErrors += errors.length
     } catch (error) {
       broken++

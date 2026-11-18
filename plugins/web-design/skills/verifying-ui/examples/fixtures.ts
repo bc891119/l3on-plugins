@@ -204,4 +204,4 @@ export const test = base.extend<Options & Fixtures>({
 })
 
 export { expect }
-export type { Locator, Page, Route, TestInfo } from '@playwright/test'
+export type { Page, TestInfo } from '@playwright/test'

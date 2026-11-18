@@ -2,7 +2,16 @@
 
 A Claude Code plugin for designing websites with a human in the loop, and verifying the result with Playwright. Skill content is written in Traditional Chinese.
 
-網站設計流程與畫面驗證。安裝、需求與對外連線說明見 [repo 首頁](https://github.com/bc891119/l3on-plugins#readme)。
+網站設計流程與畫面驗證。需求與對外連線說明見 [repo 首頁](https://github.com/bc891119/l3on-plugins#readme)。
+
+## Install
+
+在 Claude Code 對話中：
+
+```
+/plugin marketplace add bc891119/l3on-plugins
+/plugin install web-design@l3on-plugins
+```
 
 ## Skills
 
@@ -10,6 +19,12 @@ A Claude Code plugin for designing websites with a human in the loop, and verify
 |---|---|
 | `web-design:designing-websites` | 收素材 → 調研 → 資訊分層 → 2～3 個方向稿 → 退件 → 定案 `DESIGN-SYSTEM.md` → 素材與 logo → 驗證。含方向稿通過條件與換題測試、使用者全權委託時的獨立審查、圖示用法、WCAG 2.2 AA 檢查、素材授權紀錄、SVG logo 匯出 |
 | `web-design:verifying-ui` | 用專案鎖版的 Playwright 驗證畫面：通過條件、桌機／手機截圖、版面與 axe 檢查、視覺回歸 |
+
+## Agents
+
+| Agent | 用途 |
+|---|---|
+| `web-design:direction-reviewer` | 使用者全權委託時的方向稿獨立審查：只有 Read 工具，只看截圖、需求原文與功能清單 |
 
 ## Scripts
 
@@ -50,7 +65,9 @@ claude mcp add --transport http fal https://mcp.fal.ai/mcp-relay
 claude plugin eval . --judge-model sonnet --threshold 0.8
 ```
 
-`evals-exec/` 的案例會實際執行內附腳本，要授權 Bash，而 Bash 只在 OS sandbox 內執行（Linux 需要 bubblewrap 與 socat，Ubuntu 另要照 [sandbox 文件](https://code.claude.com/docs/en/sandboxing#add-an-apparmor-profile-for-bubblewrap) 處理 AppArmor；[eval 說明](https://code.claude.com/docs/en/plugin-evals)）。目前只涵蓋 `contrast.py`：eval 的 sandbox 不讓工作目錄寫入，Chromium 啟動不了：
+`evals-exec/` 的案例會實際執行內附腳本，要授權 Bash，而 Bash 只在 OS sandbox 內執行（Linux 需要 bubblewrap 與 socat，Ubuntu 另要照 [sandbox 文件](https://code.claude.com/docs/en/sandboxing#add-an-apparmor-profile-for-bubblewrap) 處理 AppArmor；[eval 說明](https://code.claude.com/docs/en/plugin-evals)）。
+
+目前只涵蓋 `contrast.py`，`screenshot.mjs` 與 `axe.mjs` 沒辦法在 eval 裡跑：Claude Code 2.1.327 實測，eval 裡的 Bash 對工作目錄與 `TMPDIR` 都是唯讀（`Read-only file system`；Write 工具寫得進去，Bash 寫不進去），Playwright 建不了暫存目錄；Chromium 的快取在使用者家目錄，sandbox 也看不到。eval 文件寫的是寫入限制在工作目錄內，但 `claude plugin eval` 沒有開放寫入的選項，run 也不讀使用者或專案設定，沒有正式方式能打開。
 
 ```bash
 claude plugin eval . --eval-dir evals-exec --scaffold --allow-tools Bash --judge-model sonnet

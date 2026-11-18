@@ -9,7 +9,7 @@
 
 ## 基準
 
-- **WCAG 2.2 AA**（W3C 建議標準，也是 ISO/IEC 40500:2025）。台灣數位發展部「網站無障礙規範」新版對應 WCAG 2.2；實際生效日與檢測方式以 [無障礙網路空間服務網](https://accessibility.moda.gov.tw/) 最新公告為準，政府案依規範等級（通常 AA）驗收。
+- **WCAG 2.2 AA**（W3C 建議標準，也是 ISO/IEC 40500:2025）。台灣政府網站另依數位發展部「網站無障礙規範」最新公告（[無障礙網路空間服務網](https://accessibility.moda.gov.tw/)）。
 - WCAG 2.2 相對 2.1 新增的 AA 準則：2.4.11 焦點不被遮蔽（最低）、2.5.7 拖曳動作、2.5.8 目標尺寸（最低）、3.3.8 無障礙驗證（最低）；A 級新增 3.2.6 一致的求助、3.3.7 免重複輸入；移除 4.1.1 剖析（[W3C](https://www.w3.org/WAI/standards-guidelines/wcag/new-in-22/)）。
 
 ## 設計期就要決定的項目
@@ -17,9 +17,9 @@
 | 準則 | 設計決策 |
 |---|---|
 | 1.4.3 對比（最低） | 一般文字 ≥ 4.5:1；大字（≥ 24px，或粗體 ≥ 18.66px）≥ 3:1。品牌色太淺時，文字用同色相較深的階（例：橘 500 當色塊、700 當文字） |
-| 1.4.11 非文字對比 | 辨識元件或狀態要靠它的才算：圖示、輸入框框線、焦點環、圖表線條 ≥ 3:1（對相鄰色）。有文字的按鈕外框、裝飾分隔線不在範圍內（[W3C](https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html)） |
+| 1.4.11 非文字對比 | 辨識元件或狀態要靠它的才算：圖示、輸入框框線、焦點環、圖表線條 ≥ 3:1（對相鄰色）。W3C 的說明：不要求控制項有標示點擊範圍的邊界（有其他方式看得出它是控制項時）；裝飾性、不需要看懂的圖形不必符合；停用中的元件除外（[Understanding 1.4.11](https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html)） |
 | 1.4.1 色彩使用 | 狀態、錯誤、必填、連結不能只靠顏色：加圖示、文字或底線 |
-| 2.4.7 焦點可見＋2.4.11 焦點不被遮蔽 | 定義全站焦點環 token（建議 2px 以上、≥ 3:1）；固定頂列／底列要留 `scroll-padding`，焦點元素不能被完全蓋住（2.4.11）；焦點環完全被蓋住則很可能不符合 2.4.7（W3C 原文 "would likely fail"，[W3C](https://www.w3.org/WAI/WCAG22/Understanding/focus-not-obscured-minimum.html)）。會捲動的容器（`overflow`）內留內距，疊在上面的元素（圖片、相鄰區塊）不蓋住焦點環 |
+| 2.4.7 焦點可見＋2.4.11 焦點不被遮蔽 | 定義全站焦點環 token（≥ 3:1；粗細 2px 以上是慣例，出自 AAA 級的 2.4.13 焦點外觀，[W3C](https://www.w3.org/WAI/WCAG22/Understanding/focus-appearance.html)）；固定頂列／底列要留 `scroll-padding`，焦點元素不能被完全蓋住（2.4.11）；焦點環完全被蓋住則很可能不符合 2.4.7（W3C 原文 "would likely fail"，[W3C](https://www.w3.org/WAI/WCAG22/Understanding/focus-not-obscured-minimum.html)）。會捲動的容器（`overflow`）內留內距，疊在上面的元素（圖片、相鄰區塊）不蓋住焦點環 |
 | 2.5.8 目標尺寸 | 可點目標 ≥ 24×24 CSS px，或周圍留足間距；行內小元件用內距撐足點擊範圍 |
 | 2.5.7 拖曳動作 | 拖曳排序、拖曳調寬等都要有點擊替代（上下移按鈕、選單） |
 | 1.4.10 重排 | 寬 320 CSS px（等同 1280 寬放大 400%）不出現雙向捲動；資料表、程式碼可例外但要有容器捲動 |
@@ -35,7 +35,7 @@
 
 ## 工具抓不到、要人工看的項目
 
-W3C：「No tool alone can determine if a site meets accessibility standards.」（[Evaluating Web Accessibility](https://www.w3.org/WAI/test-evaluate/)）。axe 等工具只抓得到一部分問題，而且只掃畫面上有的元素：腳本錯誤讓一整塊沒畫出來時，違規數反而變少，所以掃描前先確認頁面沒有腳本錯誤、關鍵元素都在。每批頁面人工過一次；項目涵蓋 W3C [Easy Checks](https://www.w3.org/WAI/test-evaluate/easy-checks/)：
+W3C：「No tool alone can determine if a site meets accessibility standards.」（[Evaluating Web Accessibility](https://www.w3.org/WAI/test-evaluate/)）。掃描前先確認頁面真的畫出來（SKILL.md 第 8 步第 1 項）。每批頁面人工過一次；項目涵蓋 W3C [Easy Checks](https://www.w3.org/WAI/test-evaluate/easy-checks/)：
 
 - [ ] 只用鍵盤（Tab／Shift+Tab／Enter／Space／Esc／方向鍵）能完成所有功能，焦點順序符合閱讀順序
 - [ ] 每個焦點位置都看得見焦點環，且沒被固定列、cookie 橫幅、相鄰的圖片蓋住，也沒被會捲動的容器裁掉（axe 不查這一項，按 Tab 逐個截圖看）
@@ -53,13 +53,8 @@ W3C：「No tool alone can determine if a site meets accessibility standards.」
 
 ## 台灣政府網站的標章檢測
 
-要申請無障礙標章的網站，官方流程是：先用數位發展部的檢測工具 Freego 做全站機器檢測並取得上傳編號，再由檢測單位做人工檢測（[標章申請說明](https://accessibility.moda.gov.tw/Accessible/Detail/109?Category=8)）。axe 通過不等於 Freego 通過，兩者規則不同；這類專案在交付前要請使用者（或客戶）跑一次 Freego，Claude 依報告修正。需登入的頁面 Freego 測不到，以人工檢測為主。
+要申請無障礙標章的網站，axe 通過不等於數位發展部的檢測工具 Freego 通過（兩者規則不同）：交付前請使用者跑 Freego，Claude 依報告修正；流程與工具版本以[官網](https://accessibility.moda.gov.tw/)公告為準。
 
 ## 常見錯誤
 
-- placeholder 當標籤用（輸入後就消失，且對比常不足）
-- 淺灰說明文字（#999 白底只有 2.8:1）
-- 只用紅／綠表示錯誤與成功
-- 拿掉 `outline` 卻沒補焦點樣式
-- 圖示按鈕 16px、沒有內距
-- 在彩色或照片背景上直接放文字，沒有遮罩
+placeholder 當標籤、淺灰說明文字（#999 白底只有 2.8:1）、拿掉 `outline` 沒補焦點樣式、照片上的字沒有遮罩；對應的準則見上表。

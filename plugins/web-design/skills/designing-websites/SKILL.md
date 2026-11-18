@@ -2,6 +2,7 @@
 name: designing-websites
 description: 網站與網頁介面的設計流程：向使用者收素材、調研、資訊分層、提 2～3 個方向稿供挑選與退件、定案寫 DESIGN-SYSTEM.md，含 WCAG 2.2 AA 檢查、主流 UI/UX 規範、圖示用法、素材搜尋與授權紀錄、SVG logo 與 favicon 產出。做新網站、landing page、改版、新介面視覺、配色字型、找圖片素材、設計 logo 時載入；專案已有 DESIGN-SYSTEM.md 時用來照規範擴充。只要求先說明做法、還不動手時也先載入。
 argument-hint: "[要設計的網站或頁面｜logo｜素材]"
+allowed-tools: Bash(python3 ${CLAUDE_SKILL_DIR}/scripts/contrast.py *) Bash(python3 ${CLAUDE_SKILL_DIR}/scripts/export_logo.py *) Bash(node ${CLAUDE_SKILL_DIR}/scripts/screenshot.mjs *) Bash(node ${CLAUDE_SKILL_DIR}/scripts/axe.mjs *)
 ---
 
 # 網站設計流程
@@ -58,14 +59,14 @@ argument-hint: "[要設計的網站或頁面｜logo｜素材]"
 - 從原型或需求列出功能清單，每一項分到四層：**一直在／就在旁邊／一行收著／按了才有**。
 - 產出一張分層表給使用者確認。之後每個方向稿都以它為上限：可以收得更深，不能把項目往上提。
 - 第一屏的主要任務若是自己提議、使用者只是同意（沒有原型或需求文件寫明），就再列一個候選（通常是同類產品慣用的那個），並在分層表上標出來給使用者一起確認，第 4 步各做成方向稿。
-- 行銷頁、單頁內容站不必列四層，寫出「首屏的一句話與主要行動、區塊順序」，併進方向稿說明即可，不另設檢查點。
+- 行銷頁、單頁內容站不必列四層，寫出「第一屏的一句話與主要動作、區塊順序」，併進方向稿說明即可，不另設檢查點。
 
 ### 4. 方向稿 2～3 個（人工檢查點③）
 
 讀 [reference/distinctive-design.md](reference/distinctive-design.md) 再發想。
 
 - 特色先從資訊安排與排版來，再色彩，最後才是圖形；借實物只取原則與功能，不取外觀。
-- 每個方向只做**一個關鍵畫面**（首頁首屏，或工具型產品最常用的畫面），用真實內容，不用佔位文字。圖示在這一步就決定並畫上去，主要操作配看得到的文字標籤（ux-patterns.md〈圖示〉），不留到第 7 步。
+- 每個方向只做**一個關鍵畫面**（首頁第一屏，或工具型產品最常用的畫面），用真實內容，不用佔位文字。圖示在這一步就決定並畫上去，主要動作配看得到的文字標籤（ux-patterns.md〈圖示〉），不留到第 7 步。
 - 方向之間的**資訊安排**要不同，不只換顏色字型；至少一個方向是「第一屏只留主要任務」的版本。
 - 同類產品普遍有主視覺或插圖時，方向稿就放上示意圖（自己畫 SVG；對話裡有生圖工具時可以用，見 reference/assets.md〈AI 生成圖〉），說明裡寫正式素材打算怎麼來，不留到第 7 步。示意圖是自己畫的 SVG 時，照 assets.md〈AI 生成圖〉在這一句提一次生圖工具的選項。
 - 方向稿放專案內不進版控的目錄（例 `design-explore/<方向名>/`，是 git repo 時加進 `.gitignore`），靜態 HTML 即可。專案已選定元件庫（例 Nuxt UI、MUI）時改用元件庫做，元件的預設長相與行為才會出現在畫面上。
@@ -86,7 +87,7 @@ argument-hint: "[要設計的網站或頁面｜logo｜素材]"
 
 ### 6. 定案寫 DESIGN-SYSTEM.md（人工檢查點⑤）
 
-- 用 [templates/DESIGN-SYSTEM.md](templates/DESIGN-SYSTEM.md) 寫到專案根目錄（前台 repo 內），所有 token 有單一來源；「資訊分層」與「圖示」兩節必填（行銷頁的資訊分層寫首屏一句話、主要行動與區塊順序）。
+- 用 [templates/DESIGN-SYSTEM.md](templates/DESIGN-SYSTEM.md) 寫到專案根目錄（前台 repo 內），所有 token 有單一來源；「資訊分層」與「圖示」兩節必填（行銷頁的資訊分層寫第一屏一句話、主要動作與區塊順序）。
 - 給使用者看過、同意後才展開到其他頁面（全權委託時照 direction-review.md 的替代做法繼續）。
 
 ### 7. 素材與 logo
@@ -106,18 +107,17 @@ argument-hint: "[要設計的網站或頁面｜logo｜素材]"
 
 ## 腳本
 
-腳本在 `${CLAUDE_SKILL_DIR}/scripts/`。前兩支只需要 Python 3；後兩支用 Node 與外掛自帶、鎖版的 Playwright，任何目錄都能執行。第一次執行若提示缺套件或缺 Chromium，照訊息裡的指令跑一次即可（Chromium 下載約 330MB、解壓後約 680MB，先告訴使用者）。
+腳本在 `${CLAUDE_SKILL_DIR}/scripts/`，照下面的完整指令執行（這幾條在叫用本 skill 的那一輪不必逐次確認）。前兩支只需要 Python 3；後兩支用 Node 與外掛自帶、鎖版的 Playwright，任何目錄都能執行。第一次執行若提示缺套件或缺 Chromium，照訊息裡的指令跑一次即可（Chromium 下載約 330MB、解壓後約 680MB，先告訴使用者）。
 
-- `contrast.py`：算 WCAG 對比。輸入檔每行一組 `前景 背景 [類型]`，類型 `text`（4.5:1，預設）、`large`（3:1，24px 或 18.66px 粗體以上）、`ui`（3:1，圖示、輸入框框線、焦點環；裝飾線與有文字的按鈕外框不必列）。色值支援 `#rgb`、`#rrggbb`、`rgb()`、`oklch()`；半透明色要先換成疊在背景上之後的實色。也可直接給兩個色值：`contrast.py "#767676" "#ffffff"`。結束碼：0 全部通過、1 有不合格、2＝用法或格式錯誤（含讀不到檔案、色票檔裡有無法解析的行）。
-- `export_logo.py <logo.svg> <輸出資料夾> [--favicon favicon.svg] [--touch-bg <色值>]`：產出 `logo-<尺寸>.png`（512/256/128/64；48/32/16 有給 `--favicon` 時用簡化版畫）、`apple-touch-icon.png`（180，iOS 不支援透明，底色用 `--touch-bg`，預設白）、`favicon.ico`（16/32/48）。需要一個 SVG 轉檔工具（cairosvg、rsvg-convert、ImageMagick 或 Inkscape 任一）；都沒有時腳本會印出安裝方式。
-
-- `screenshot.mjs <輸出資料夾> <網址或 HTML 檔>... [--tablet] [--size <寬>x<高>]... [--dark] [--click <選擇器>]...`：每頁截桌機 1440 與手機 390 的整頁圖與第一屏圖（檔名加 `-fold`；`--tablet` 加 768；`--size 1920x1080` 加截指定尺寸，可重複；`--dark` 模擬深色系統；`--click` 先點開抽屜、選單再截；每種狀態用各自的輸出資料夾），並回報第一屏可操作元素數、有無橫向捲軸、console 錯誤與未捕捉例外的內容。有腳本錯誤時結束碼為 1（圖照截，但不算通過）。給方向稿與設計檢視用，不取代 verifying-ui 的專案驗收測試。
-- `axe.mjs <網址或 HTML 檔>... [--open-details] [--dark] [--click <選擇器>]...`：每頁在桌機與手機尺寸各跑一次 axe-core（WCAG 2.0～2.2 的 A 與 AA），列出違規的規則與元素、需人工判斷的項目。有違規或頁面有腳本錯誤時結束碼為 1（載入後，或 `--click`、`--open-details` 點開後出現腳本錯誤的頁面不掃描）。只掃載入後的狀態；`--open-details` 先展開所有 `<details>`，`--click` 先點開抽屜、對話框再掃，`--dark` 模擬深色系統。
+- `python3 ${CLAUDE_SKILL_DIR}/scripts/contrast.py <色票檔>`：算 WCAG 對比。輸入檔每行一組 `前景 背景 [類型]`，類型 `text`（4.5:1，預設）、`large`（3:1，24px 或 18.66px 粗體以上）、`ui`（3:1，辨識元件或狀態要靠它的圖示、輸入框框線、焦點環；W3C 不要求控制項有標示點擊範圍的邊界，裝飾性圖形也不必列，見 accessibility.md 的 1.4.11）。色值支援 `#rgb`、`#rrggbb`、`rgb()`、`oklch()`；半透明色要先換成疊在背景上之後的實色。也可直接給兩個色值：`python3 ${CLAUDE_SKILL_DIR}/scripts/contrast.py "#767676" "#ffffff"`。結束碼：0 全部通過、1 有不合格、2＝用法或格式錯誤（含讀不到檔案、色票檔裡有無法解析的行）。
+- `python3 ${CLAUDE_SKILL_DIR}/scripts/export_logo.py <logo.svg> <輸出資料夾> [--favicon favicon.svg] [--touch-bg <色值>]`：產出 `logo-<尺寸>.png`（512/256/128/64；48/32/16 有給 `--favicon` 時用簡化版畫）、`apple-touch-icon.png`（180，iOS 不支援透明，底色用 `--touch-bg`，寫成 `#rgb` 或 `#rrggbb`，預設白）、`favicon.ico`（16/32/48）。需要一個 SVG 轉檔工具（cairosvg、rsvg-convert、ImageMagick 或 Inkscape 任一）；都沒有時腳本會印出安裝方式。結束碼：0 完成、1 轉檔失敗、2 用法或環境錯誤（色值不合法、找不到 SVG、沒有轉檔工具）。
+- `node ${CLAUDE_SKILL_DIR}/scripts/screenshot.mjs <輸出資料夾> <網址或 HTML 檔>... [--tablet] [--size <寬>x<高>]... [--dark] [--click <選擇器>]...`：每頁截桌機 1440 與手機 390 的整頁圖與第一屏圖（檔名加 `-fold`；`--tablet` 加 768；`--size 1920x1080` 加截指定尺寸，可重複；`--dark` 模擬深色系統；`--click` 先點開抽屜、選單再截；每種狀態用各自的輸出資料夾），並回報第一屏可操作元素數、有無橫向捲軸、console 錯誤與未捕捉例外的內容。結束碼：0 成功、1 有腳本錯誤（圖照截，但不算通過）、2 用法或環境錯誤、3 有頁面開不起來。給方向稿與設計檢視用，不取代 verifying-ui 的專案驗收測試。
+- `node ${CLAUDE_SKILL_DIR}/scripts/axe.mjs <網址或 HTML 檔>... [--open-details] [--dark] [--click <選擇器>]...`：每頁在桌機與手機尺寸各跑一次 axe-core（WCAG 2.0～2.2 的 A 與 AA），列出違規的規則與元素、需人工判斷的項目。結束碼：0 沒有違規、1 有違規或頁面有腳本錯誤（載入後，或 `--click`、`--open-details` 點開後出現腳本錯誤的頁面不掃描）、2 用法或環境錯誤、3 有頁面開不起來。只掃載入後的狀態；`--open-details` 先展開所有 `<details>`，`--click` 先點開抽屜、對話框再掃，`--dark` 模擬深色系統。
 
 ## 不要做
 
 - 不要跳過檢查點①直接做；不要一次做完整站當作設計提案。
-- 不要用「全部同時可見」來滿足「功能不能少」。
+- 「功能不能少」不等於全部同時可見（ux-patterns.md〈資訊分層〉）。
 - 不要套現成風格或題材扮裝（判斷方法在 distinctive-design.md 的「換題測試」，不是比對清單）。
 - 不要自己審自己就算過了檢查點：使用者不在時用獨立審查，並在報告寫明。
 - 不要把圖庫照片放進 logo；不要用來源與授權不明的素材。

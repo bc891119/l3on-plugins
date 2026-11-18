@@ -15,7 +15,7 @@ user-invocable: false
 在專案目錄跑 `pnpm ls --depth 0 @playwright/test`。只看 `playwright --version` 不夠：只裝了函式庫 `playwright` 也會印出版本，但沒有 `playwright test` 執行器、fixture 與 web-first assertion（[官方](https://playwright.dev/docs/library)）。
 
 - **有**：用專案的設定與測試目錄。瀏覽器版本不符就跑 `pnpm exec playwright install chromium`，Linux 缺系統套件再加 `--with-deps`。
-- **沒有**：停下來問使用者要不要裝，說明會動到 package.json 與 lockfile。用精確版本安裝：`pnpm add -D --save-exact @playwright/test@<版本>`，選發布滿兩週的版本；機器上已有下載好的瀏覽器時，優先選與它相符的版本（`node_modules/playwright-core/browsers.json` 的 revision 對照瀏覽器快取目錄）。
+- **沒有**：停下來問使用者要不要裝，說明會動到 package.json 與 lockfile。用精確版本安裝：`pnpm add -D --save-exact @playwright/test@<版本>`，選發布滿兩週的版本（兩週是慣例，理由見下面第 3 點）；機器上已有下載好的瀏覽器時，優先選與它相符的版本（`node_modules/playwright-core/browsers.json` 的 revision 對照瀏覽器快取目錄）。
   - 前後台分開時裝在有 Node 的 repo，用 [projects](https://playwright.dev/docs/test-projects) 分別設 baseURL，一份設定就能測兩邊，也才寫得出跨前後台的流程。
   - 沒有任何 Node repo（例：只有 PHP 後台）時，在會部署的 repo 之外開獨立的測試套件，自帶 package.json。不要把 package.json 加進會部署的 repo：web root 常直接供應存在的靜態檔（例：Nginx `try_files $uri`），會露出相依套件清單。
 
@@ -23,7 +23,7 @@ user-invocable: false
 
 1. 每版 Playwright 綁定特定瀏覽器版本，升級後要重跑 `playwright install`（[官方](https://playwright.dev/docs/browsers)）。版本浮動時不同人、不同時間會裝到不同版，瀏覽器對不上就跑不起來。
 2. 截圖與版面檢查要可重現：同一份測試在每個人與 CI 上要用同一版瀏覽器引擎。
-3. 供應鏈：剛發布的版本可能被撤回或遭植入，等兩週再採用。
+3. 供應鏈：剛發布的版本可能被撤回或遭植入（例：npm 允許新套件在發布後 72 小時內撤回，[npm 政策](https://docs.npmjs.com/policies/unpublish)），等兩週再採用（慣例）。
 
 所以不要從 npx 快取或其他專案的 node_modules 引用，也不要寫死 `executablePath`。
 
@@ -41,7 +41,7 @@ user-invocable: false
 - 登入用 setup project 存 storageState 重複使用，狀態檔不進版控（含 session cookie；[官方](https://playwright.dev/docs/auth)）；不同身分各存一份，跨系統流程開兩個 browser context。
 - 定位用 getByRole / getByLabel / getByText，不用 CSS class；等待用 web-first assertion（`await expect(...).toBeVisible()`），不用固定 sleep（[官方](https://playwright.dev/docs/best-practices)）。
 - 測試預設模擬淺色系統（`colorScheme` 預設 `light`，[官方 API](https://playwright.dev/docs/api/class-browser#browser-new-context-option-color-scheme)）。網站支援深色模式時，加一個 `use.colorScheme: 'dark'` 的 project 再跑一輪；不支援時確認頁面已鎖成淺色。
-- 每個情境：桌機 1440 與手機 390 截整頁圖（fullPage），或逐一捲到每個互動區塊再截；只截首屏不算看過。改到版面時另跑 768。尺寸用兩個 project 的 `use.viewport` 設定，測試裡不寫尺寸迴圈（[官方](https://playwright.dev/docs/test-projects)）。外殼固定在視窗內、由內層面板捲動的版面，fullPage 只拍得到一個視窗，要先把視窗拉高再截（範例的 `screenshotAll`）。
+- 每個情境：桌機 1440 與手機 390 截整頁圖（fullPage），或逐一捲到每個互動區塊再截；只截第一屏不算看過。改到版面時另跑 768。尺寸用兩個 project 的 `use.viewport` 設定，測試裡不寫尺寸迴圈（[官方](https://playwright.dev/docs/test-projects)）。外殼固定在視窗內、由內層面板捲動的版面，fullPage 只拍得到一個視窗，要先把視窗拉高再截（範例的 `screenshotAll`）。
 - 收集 console error、未捕捉的例外（pageerror）、failed request，記錄 /api status，並在測試裡 assert 為空（範例的 `visitAndCheck` 掃描前會先檢查 `problems` fixture）；預期中的錯誤（負向情境的 4xx）逐條從 `problems` 排除後自己 assert、再呼叫 `checkPage`，不整個關掉。
 - trace 設 `retain-on-failure`，失敗時回報路徑（[官方](https://playwright.dev/docs/trace-viewer)）。trace 會留下填過的密碼，登入的 setup project 不錄。
 - 流程不清楚時先用 `pnpm exec playwright cli --help` 列的指令探索，驗收依據仍是測試。
@@ -56,7 +56,7 @@ user-invocable: false
 
 - 可見互動元素兩兩不重疊。要用 `checkVisibility()` 排除收合的 `<details>`，並扣掉祖先裁切的範圍，否則會大量誤報。
 - 文字不溢出容器（scrollWidth ≤ clientWidth，刻意 truncate 的除外）。
-- 間距：改到版面時用 `boundingBox()` 量，列成表看：同層面板內容離左右兩邊的距離一致；hover／選取的底色不貼到相鄰元素；同一組卡片等寬，附加的按鈕不讓卡片大小不一；輸入框裡的圖示、按鈕和輸入框的垂直中心差距在 1px 內（幾 px 的偏移截圖看不出來）。
+- 間距：改到版面時用 `boundingBox()` 量，列成表看：同層面板內容離左右兩邊的距離一致；hover／選取的底色不貼到相鄰元素；同一組卡片等寬，附加的按鈕不讓卡片大小不一；輸入框裡的圖示、按鈕和輸入框的垂直中心差距在 1px 內（門檻來自試作回饋；幾 px 的偏移截圖看不出來）。
 - 中文按鈕與標籤不被擠成一字一行。
 - 無橫向捲軸（documentElement.scrollWidth ≤ innerWidth）。
 - 無障礙：裝 `@axe-core/playwright`（同樣鎖精確版本）。它把 `playwright-core` 宣告成版本範圍寬鬆的 peer 相依，套件管理工具可能另裝一份較新的 `playwright-core`，`new AxeBuilder({ page })` 就會出現型別錯誤；裝完用 `pnpm why playwright-core` 確認只有一個版本，有兩個就把 `playwright-core` 以和 `@playwright/test` 相同的精確版本加進 devDependencies。標籤用 `wcag2a, wcag2aa, wcag21a, wcag21aa, wcag22aa`。Playwright 官方範例只列到 2.1，要加 `wcag22aa` 才會掃 WCAG 2.2 的目標尺寸。既有違規用「規則 id＋selector」指紋清單排除，不快照整份結果（[官方](https://playwright.dev/docs/accessibility-testing)）。自動掃描只抓得到部分問題，不能取代人工看（W3C：沒有任何工具能單獨判定網站是否符合無障礙標準）；鍵盤操作、焦點順序、報讀軟體要另外人工檢查。

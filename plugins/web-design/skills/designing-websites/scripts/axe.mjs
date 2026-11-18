@@ -20,13 +20,9 @@
  * 結束碼：0 沒有違規、1 有違規或有頁面出現腳本錯誤、2 用法或環境錯誤、3 有頁面開不起來。
  * 自動掃描只涵蓋一部分準則，通過不代表符合 WCAG；人工項目見 reference/accessibility.md。
  */
-import fs from 'node:fs'
 import path from 'node:path'
 import { createRequire } from 'node:module'
-import { pathToFileURL } from 'node:url'
-import { launchChromium, takeClicks, clickAll, PLUGIN_ROOT } from './browser.mjs'
-
-const VIEWPORTS = { desktop: { width: 1440, height: 900 }, mobile: { width: 390, height: 844 } }
+import { launchChromium, takeClicks, clickAll, toUrl, collectErrors, printErrors, VIEWPORTS, PLUGIN_ROOT } from './browser.mjs'
 // wcag22aa 要明列，否則不會檢查 WCAG 2.2 的目標尺寸
 const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']
 const { rest: args, clicks } = takeClicks(process.argv.slice(2))
@@ -46,15 +42,11 @@ try {
   process.exit(2)
 }
 
-const toUrl = (target) => {
-  if (/^https?:\/\//.test(target)) return target
-  if (!fs.existsSync(target)) { console.error(`找不到檔案：${target}`); process.exit(2) }
-  return pathToFileURL(path.resolve(target)).href
-}
 const pages = targets.map(target => ({ target, url: toUrl(target) }))
 
 const browser = await launchChromium()
-const sizes = Object.entries(VIEWPORTS)
+// 平板與 --size 是截圖用的；掃描只跑桌機與手機
+const sizes = [['desktop', VIEWPORTS.desktop], ['mobile', VIEWPORTS.mobile]]
 let broken = 0
 let failed = 0
 
@@ -63,9 +55,7 @@ for (const { target, url } of pages) {
     // bypassCSP：頁面的 CSP 不允許注入腳本時仍能載入 axe
     const context = await browser.newContext({ viewport, locale: 'zh-TW', colorScheme, bypassCSP: true })
     const page = await context.newPage()
-    const errors = []
-    page.on('console', (message) => { if (message.type() === 'error') errors.push(`console: ${message.text()}`) })
-    page.on('pageerror', (error) => { errors.push(`例外: ${error.message}`) })
+    const errors = collectErrors(page)
     try {
       const response = await page.goto(url, { waitUntil: 'networkidle', timeout: 30_000 })
       if (response && response.status() >= 400) throw new Error(`HTTP ${response.status()}`)
@@ -86,8 +76,7 @@ for (const { target, url } of pages) {
       if (errors.length) {
         failed++
         console.log(`${target}（${device}）  ${stage} ${errors.length}，未掃描`)
-        for (const error of errors.slice(0, 5)) console.error(`  ${error.slice(0, 300)}`)
-        if (errors.length > 5) console.error(`  …另有 ${errors.length - 5} 則`)
+        printErrors(errors)
       } else {
         await page.addScriptTag({ path: axePath })
         const result = await page.evaluate(tags => window.axe.run(document, { runOnly: { type: 'tag', values: tags } }), TAGS)

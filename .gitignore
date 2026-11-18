@@ -2,3 +2,5 @@ plugins/*/evals/results/
 plugins/*/evals-exec/results/
 node_modules/
 .tmp/
+test-results/
+.DS_Store

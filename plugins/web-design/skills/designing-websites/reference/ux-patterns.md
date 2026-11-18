@@ -12,16 +12,7 @@
 
 關鍵流程逐項檢查，每個問題記下畫面與修法（[NN/g](https://www.nngroup.com/articles/ten-usability-heuristics/)）。第 2、4、6、8 項從靜態畫面就看得出來，方向稿階段先看一次；其餘在展開後看完整流程：
 
-1. **系統狀態可見**：送出、載入、儲存、產生中都有回饋；長工作顯示進度與可取消。
-2. **貼近真實世界**：用使用者的詞（機關用語、業界用語），不用工程術語。
-3. **使用者可控制**：可取消、可復原（刪除給「復原」比確認框更好）、可離開流程。
-4. **一致性與標準**：同一動作同一樣式與位置；遵守平台慣例（Logo 回首頁、右上帳號）。
-5. **預防錯誤**：限制輸入格式、危險動作要確認、預設值安全。
-6. **辨識勝於回憶**：選項看得到，不要求記住前一頁的資訊。
-7. **彈性與效率**：常用者有捷徑（快捷鍵、最近使用、批次操作）。
-8. **美感與極簡**：每個元素都要有用途；次要資訊收起來。
-9. **協助辨識與修復錯誤**：錯誤說明原因與解法，不道歉、不含糊。
-10. **說明與文件**：需要時在情境中提供（欄位說明、空狀態引導）。
+1. 系統狀態可見　2. 貼近真實世界　3. 使用者可控制與自由　4. 一致性與標準　5. 預防錯誤　6. 辨識勝於回憶　7. 彈性與效率　8. 美感與極簡設計　9. 協助辨識、診斷與修復錯誤　10. 說明與文件
 
 ## 資訊分層
 
@@ -45,7 +36,7 @@
 
 - 主要按鈕的數量見〈元件與互動慣例〉。
 - 「功能不能少」指每個功能都找得到，不是都在第一層。
-- 原型的版面結構（幾欄、什麼同時攤開）不是需求，除非使用者說是。
+- 原型的版面結構不是需求（見 SKILL.md 第 1 步）。
 - 每一項收起來的代價寫出來：誰會多按一下、寬螢幕時要不要改成常駐。
 
 分層表的格式（給使用者確認，定案後放進 DESIGN-SYSTEM.md）：
@@ -66,13 +57,13 @@
 - **不該放**：內文與標題裡、長清單每一列都重複同一個圖示（沒有資訊）、純裝飾。
 - **一致**：同一個意思用同一個圖示，風格與筆畫粗細一致；顏色跟著文字（`currentColor`），大小跟著字級；裝飾性的圖示加 `aria-hidden="true"`，由旁邊的文字當名稱。
 - 表情符號不當介面圖示：各平台長相不同，也沒辦法跟著文字顏色。
-- 工具型介面的頂列與主要操作沒有圖示時，要在方向稿說明寫理由。來源、打包方式與授權見 assets.md。
+- 工具型介面的頂列與主要動作沒有圖示時，要在方向稿說明寫理由。來源、打包方式與授權見 assets.md。
 
 ## 頁型重點
 
 下面是可用性研究的結論，管的是好不好用，不管長相；版型、風格、放不放圖由方向決定。
 
-- **Landing／官網首頁**：首屏看得出這是什麼、能做什麼；按鈕文字寫明按了會怎樣；什麼都強調等於沒強調（[NN/g](https://www.nngroup.com/articles/homepage-design-principles/)）。行動版首屏也要看得到主要按鈕。
+- **Landing／官網首頁**：第一屏看得出這是什麼、能做什麼；按鈕文字寫明按了會怎樣；什麼都強調等於沒強調（[NN/g](https://www.nngroup.com/articles/homepage-design-principles/)）。行動版第一屏也要看得到主要按鈕。
 - **表單**：單欄排列，相關的短欄位（縣市與郵遞區號、年月日）可同列（[Baymard](https://baymard.com/blog/avoid-multi-column-forms)）；標籤預設放欄位正上方，極長的桌機表單可放在欄位旁邊（[NN/g](https://www.nngroup.com/articles/web-form-design/)）；必填欄位都標出來；選填欄位 Baymard 建議結帳與長的註冊表單也標（兩種都標，[Baymard](https://baymard.com/blog/required-optional-form-fields)），NN/g 認為標了是加分（"nice perk"，[NN/g](https://www.nngroup.com/articles/required-fields/)）；錯誤多半等離開欄位後才顯示，新密碼這類複雜輸入可以邊打邊驗（[NN/g](https://www.nngroup.com/articles/errors-forms-design-guidelines/)）；送出按鈕寫出結果（「建立帳號」而非「送出」）。
 - **儀表板／工具型產品**：最常用的任務放在第一層，其餘照〈資訊分層〉收；分組先試留白，不夠再加框（[NN/g](https://www.nngroup.com/articles/common-region/)）；空狀態說明下一步；表格支援排序、篩選、欄寬。
 - **電商**：商品頁、搜尋、購物車、結帳依 [Baymard](https://baymard.com/research/methodology) 的研究（例如允許訪客結帳、運費提早揭露、商品圖可放大）。做電商時上網查 Baymard 對應主題的公開文章。
@@ -88,12 +79,12 @@
 - 字型：黑體、明體各管什麼由方向決定，寫進規範。數字欄位用 `tabular-nums`。
 - 中文字型多半沒有真正的斜體，是電腦硬拉斜的；強調優先用字重、顏色或著重號。
 - 標題、按鈕與短句不在詞中間斷行：用 `<wbr>` 標出可以斷的位置並加 `word-break: keep-all`（[CSS Text 4](https://www.w3.org/TR/css-text-4/#word-break-property)）；`text-wrap: balance` 讓各行長度接近（[MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/text-wrap)）。桌機與手機之間的寬度也拉幾個看。
-- 標點用全形；中英文之間的空格依專案文案規範統一。
+- 中英文之間的空格依專案文案規範統一。
 
 ## 元件與互動慣例
 
-- 一個頁面避免放多個主要（預設樣式）按鈕，主要行動多了反而不知道下一步按哪個；危險、難復原的動作要和一般按鈕分得出來，不只靠紅色（[GOV.UK](https://design-system.service.gov.uk/components/button/)）。
+- 一個頁面避免放多個主要（預設樣式）按鈕，主要動作多了反而不知道下一步按哪個；危險、難復原的動作要和一般按鈕分得出來，不只靠紅色（[GOV.UK](https://design-system.service.gov.uk/components/button/)）。
 - 圖示搭配一直看得到的文字；純圖示按鈕的條件見〈圖示〉。
 - 動效要有目的；時長約 100～500ms，越常出現的越短（[NN/g](https://www.nngroup.com/articles/animation-duration/)）；自動播放與減少動態見 accessibility.md（2.2.2）。
 - 深色模式：每個 token 有深色值，不一定是淺色的反轉（有些顏色反轉、有些不反轉）；疊在前面的介面（popover、sheet）用較亮的底色，讓它看起來浮在前面（[Apple HIG](https://developer.apple.com/design/human-interface-guidelines/dark-mode) 的 base／elevated）。
-- RWD：行動優先；斷點處理頁面骨架，元件內部用 container queries。
+- RWD：各寬度都能用，不出現雙向捲動（accessibility.md 的 1.4.10）。

@@ -17,7 +17,7 @@ L3ON 的 Claude Code 外掛市集。
 
 | 外掛 | 內容 |
 |---|---|
-| `web-design` | `designing-websites`（網站設計流程、資訊分層、WCAG 2.2 AA、圖示與素材授權、SVG logo）、`verifying-ui`（Playwright 畫面驗證） |
+| `web-design` | `designing-websites`（網站設計流程、資訊分層、WCAG 2.2 AA、圖示與素材授權、SVG logo）、`verifying-ui`（Playwright 畫面驗證）；agent `direction-reviewer`（全權委託時的方向稿獨立審查） |
 
 ## 安裝
 
@@ -43,11 +43,12 @@ L3ON 的 Claude Code 外掛市集。
 
 ## 這個外掛會做什麼
 
-- 只有 skill（說明檔）和供 skill 呼叫的腳本；沒有 hook、沒有 MCP 伺服器、沒有常駐程式，也不蒐集任何使用資料。
+- 只有 skill（說明檔）、供 skill 呼叫的腳本，和一個只有 Read 工具的審查用 agent；沒有 hook、沒有 MCP 伺服器、沒有常駐程式，也不蒐集任何使用資料。
+- `designing-websites` 用 `allowed-tools` 預先核准四支內附腳本的確切指令：叫用這個 skill 的那一輪執行它們不再逐次確認，下一則訊息起恢復原本的權限（[官方說明](https://code.claude.com/docs/en/skills)）。下載 Chromium 不在核准範圍，照舊要確認。
 - 腳本的對外連線只有兩種，都在 skill 流程明確用到時才發生：第一次使用時下載 Chromium、截圖或無障礙掃描時頁面自己載入的外部資源（例如網頁字型）。
 - 外掛不內建生圖。使用者自己接了生圖服務的 MCP 伺服器時，skill 會把提示詞送到那個服務；沒接就不會連。
 - 腳本位置：`plugins/web-design/skills/designing-websites/scripts/`，安裝前可以直接閱讀。
-- Windows 上若沒有 `python3` 指令，請改用 `python` 執行 `.py` 腳本。
+- Windows 上若沒有 `python3` 指令，請改用 `python` 執行 `.py` 腳本（這時不符合上面的預先核准，每次會先問）。
 
 ## 更新
 
@@ -65,7 +66,7 @@ claude plugin update web-design@l3on-plugins    # 更新已安裝的外掛
 ```bash
 (cd plugins/web-design && npm ci --ignore-scripts)   # 從本機路徑載入外掛時要自己裝一次
 claude plugin validate .                    # 檢查市集與外掛格式
-claude plugin eval plugins/web-design --judge-model sonnet --threshold 0.8   # 跑 evals（有外掛 vs 無外掛），報告在 plugins/web-design/evals/results/；評審是 AI，單次結果會浮動，看多次執行的平均
+claude plugin eval plugins/web-design --judge-model sonnet --threshold 0.8   # 跑 evals（有外掛 vs 無外掛），報告在 plugins/web-design/evals/results/；llm 類評分條件由 AI 判定，單次結果會浮動，看多次執行的平均
 (cd plugins/web-design && claude plugin eval . --eval-dir evals-exec --scaffold --allow-tools Bash --judge-model sonnet)   # 實際執行腳本的案例；需要 sandbox（Linux：bubblewrap 與 socat）
 ```
 

@@ -1,15 +1,40 @@
 /**
- * 內附腳本共用：載入外掛自帶的 Playwright 並啟動 Chromium。
+ * 內附腳本共用：載入外掛自帶的 Playwright 並啟動 Chromium，以及截圖與掃描共用的尺寸、網址與錯誤收集。
  * 套件由外掛根目錄的 package.json／package-lock.json 鎖版，安裝外掛時 Claude Code 會自動裝好；
  * 從本機路徑載入外掛（開發中）時要自己在外掛根目錄跑一次 npm ci --ignore-scripts。
  * 瀏覽器本體不隨套件安裝，第一次使用要下載一次（下載約 330MB、解壓後約 680MB；Playwright 1.64.1 在 Linux x64 實測）。
  */
+import fs from 'node:fs'
 import { createRequire } from 'node:module'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 
 // scripts → designing-websites → skills → 外掛根目錄
 export const PLUGIN_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..')
+
+// 與 verifying-ui 相同的尺寸：桌機 1440、手機 390；平板 768 在改到版面時加看
+export const VIEWPORTS = { desktop: { width: 1440, height: 900 }, mobile: { width: 390, height: 844 }, tablet: { width: 768, height: 1024 } }
+
+/** 網址原樣回傳；本機檔案轉成 file:// 網址，找不到時結束碼 2。 */
+export function toUrl(target) {
+  if (/^https?:\/\//.test(target)) return target
+  if (!fs.existsSync(target)) { console.error(`找不到檔案：${target}`); process.exit(2) }
+  return pathToFileURL(path.resolve(target)).href
+}
+
+/** 收集 console error 與未捕捉的例外；回傳的陣列會隨頁面事件持續增加。 */
+export function collectErrors(page) {
+  const errors = []
+  page.on('console', (message) => { if (message.type() === 'error') errors.push(`console: ${message.text()}`) })
+  page.on('pageerror', (error) => { errors.push(`例外: ${error.message}`) })
+  return errors
+}
+
+/** 印出前 5 則錯誤，其餘只印數量。 */
+export function printErrors(errors) {
+  for (const error of errors.slice(0, 5)) console.error(`  ${error.slice(0, 300)}`)
+  if (errors.length > 5) console.error(`  …另有 ${errors.length - 5} 則`)
+}
 
 /** 取出 --click <選擇器>（可重複），回傳其餘參數與選擇器清單。 */
 export function takeClicks(args) {

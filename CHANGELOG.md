@@ -3,6 +3,44 @@
 本檔格式依 [Keep a Changelog](https://keepachangelog.com/zh-TW/1.1.0/)，版本號依 [Semantic Versioning](https://semver.org/lang/zh-TW/)。
 各外掛獨立編號，git tag 為 `<外掛名>--v<版本>`。
 
+## web-design 2.3.0 - 2026-11-18
+
+### Added
+
+- Agent `web-design:direction-reviewer`：使用者全權委託時的方向稿獨立審查者，只有 Read 工具，審查題目寫在定義裡；呼叫端只給截圖路徑、需求原文與功能清單。依官方建議，同樣的審查會重複叫用；改不了檔案、也不能搜尋檔案，由 Claude Code 強制，「只看指定的截圖」仍由提示詞要求。沒有這個 agent 時仍可用一般 subagent 貼同一份題目。
+- `designing-websites` 加上 `allowed-tools`：四支內附腳本的確切指令（`python3 ${CLAUDE_SKILL_DIR}/scripts/contrast.py *` 等）在叫用 skill 的那一輪不必逐次確認；〈腳本〉改成完整指令讓規則對得上。Chromium 下載不在核准範圍。實測：預設權限模式下，叫用這個 skill 本身會先問一次。
+- 外掛 README：〈Install〉（和 repo 首頁同樣的兩行）與〈Agents〉。
+- Evals：
+  - 新案例 `click-states`：定案前把主要的「按了才有」畫面做出來，點開後截圖給使用者看；
+  - 原本有外掛與沒外掛都滿分的案例加評分條件：`brand-color`（不用米色底＋襯線＋赤陶橘的套路；方向之間差在資訊安排，不只換配色字型）、`existing-system`（收合的答案展開後再檢查）、`logo`（apple-touch-icon 不透明底）、`dark-mode`（方向稿用已裝的 Nuxt UI 做；截圖檢查前先確認沒有腳本錯誤）。各跑 3 次，有外掛都高於沒外掛。
+
+### Changed
+
+- 規則只寫來源有的內容：
+  - 1.4.11 改照 Understanding 原文：不要求控制項有標示點擊範圍的邊界、裝飾性圖形不必符合（`accessibility.md`、`contrast.py`、SKILL.md〈腳本〉）；
+  - 台灣政府網站：〈基準〉只寫依數位部「網站無障礙規範」最新公告，〈標章檢測〉縮成一句（axe 通過不等於 Freego 通過，交付前請使用者跑 Freego），拿掉無法查證、會過時的流程步驟與版本日期；
+  - RWD 由「行動優先、container queries」改成要達到的結果（各寬度可用、不出現雙向捲動）；
+  - 生成圖連結拿掉「幾分鐘到一小時」與「多數服務」，只寫可能會過期；
+  - 沒有一手來源的數值標明出處：焦點環 2px、原圖約兩倍寬、套件滿兩週、logo 安全邊距 10%、3 個形容詞與概念數標「慣例」（2px 註明出自 AAA 級的 2.4.13，兩週附 npm 新套件 72 小時內可撤回的政策）；審查最多三次、輸入框垂直中心 1px、1920×1080 約剩 940 標「來自試作回饋」。
+- `logo.md` 的概念數由 3 個改為 2～3 個，與方向稿一致；評分條件原本就接受 2～3 個。
+- 同一條規則寫在多處的，其他地方改成一句引用：原型的版面結構不是需求（留 SKILL.md）、功能不能少不等於全部同時可見（留 ux-patterns.md）、掃描前先確認沒有腳本錯誤（`accessibility.md` 指到 SKILL.md 第 8 步）。範本的最小字級改成佔位寫法。
+- 用詞統一：首屏→第一屏、主要行動／主要操作→主要動作、評審→評分條件。
+- 縮短現在的模型不必提醒的段落：NN/g 10 項只留名稱、〈常見錯誤〉縮成一行、拿掉「標點用全形」。
+- 獨立審查改用 `web-design:direction-reviewer`，`direction-review.md` 只留任務訊息的格式。
+- `screenshot.mjs`、`axe.mjs`：尺寸、網址轉換、錯誤收集與輸出移到 `browser.mjs` 共用；同一組測試頁重構前後輸出與結束碼相同。
+- Evals：
+  - `existing-system`、`missing-playwright` 的評分檔改成一個檔案判一項（各拆成 3 個），判斷內容不變；
+  - `cross-repo-plan` 的截圖條件和 `verifying-ui` 一致：整頁圖或逐一捲到每個互動區塊再截都算。
+- 外掛 README〈Evals〉寫明 `evals-exec` 只涵蓋 `contrast.py` 的原因（eval 裡的 Bash 對工作目錄與 `TMPDIR` 唯讀，2.1.327 實測）。
+- repo 首頁 README〈這個外掛會做什麼〉與 `SECURITY.md` 寫明新增的 agent 與腳本預先核准的範圍。
+
+### Fixed
+
+- `export_logo.py`：`--touch-bg` 給不合法的色值時照樣產出、結束碼 0。現在先檢查參數，只接受 `#rgb`、`#rrggbb`，不合法時印說明、結束碼 2；找不到 SVG、沒有轉檔工具由 1 改為 2，轉檔失敗仍是 1。SKILL.md〈腳本〉補上四支腳本的結束碼。
+- `verifying-ui` 範例 `fixtures.ts`：拿掉沒有用到的 `Locator`、`Route` 型別匯出。
+- CHANGELOG：1.1.0 的日期改為 2026-11-14（提交與標籤都在 11-14）；2.0.0 的分類順序改成 Added、Changed、Removed，內容不變。
+- `.gitignore` 加上 `test-results/`、`.DS_Store`。
+
 ## web-design 2.2.1 - 2026-11-18
 
 ### Fixed
@@ -78,12 +116,6 @@
 
 ## web-design 2.0.0 - 2026-11-18
 
-### Removed
-
-- 商標檢索：刪除 `tipo_search.mjs` 與 `logo.md` 的〈商標檢索〉一節，logo 流程從 6 步變 5 步。名稱多半由使用者自己決定，查到相近的也很少改；腳本操作的是外部網站的畫面，對方改版就壞。**破壞性變更**：呼叫 `tipo_search.mjs` 的流程要改成自行到智慧財產局商標檢索系統查詢。
-- Evals：`logo` 情境刪除商標檢索的評分條件。
-- repo 首頁 README：需求與對外連線說明拿掉商標檢索，對外連線從三種變兩種。
-
 ### Added
 
 - `designing-websites`：`reference/assets.md` 新增〈AI 生成圖〉。對話裡有使用者自己接上的生圖工具（MCP）時才用，沒有就畫 SVG；外掛不內建生圖、不需要金鑰。內容：風格先生 2～3 種給使用者挑、顯示尺寸與工具輸出上限先算、圖上的字以最差位置算對比、模型授權逐次確認、生完存進專案、logo 與 favicon 的成品不用生成圖。
@@ -104,6 +136,12 @@
   - 使用者指定的風格與質感、同類產品普遍有的主視覺與插圖不算題材扮裝。
 - Evals：`logo` 的評分條件不再把漸層算失敗。
 - Evals：`missing-playwright` 的評審寫明「參考已下載的瀏覽器版本來選版本」不算借用現成的 Playwright，原本同樣的回答時過時不過。
+
+### Removed
+
+- 商標檢索：刪除 `tipo_search.mjs` 與 `logo.md` 的〈商標檢索〉一節，logo 流程從 6 步變 5 步。名稱多半由使用者自己決定，查到相近的也很少改；腳本操作的是外部網站的畫面，對方改版就壞。**破壞性變更**：呼叫 `tipo_search.mjs` 的流程要改成自行到智慧財產局商標檢索系統查詢。
+- Evals：`logo` 情境刪除商標檢索的評分條件。
+- repo 首頁 README：需求與對外連線說明拿掉商標檢索，對外連線從三種變兩種。
 
 ## web-design 1.3.0 - 2026-11-17
 
@@ -157,7 +195,7 @@
 
 - `screenshot.mjs`：外殼固定在視窗內、由內層面板捲動的版面，整頁圖原本只拍到一個視窗高，現在會先把視窗拉高再截。
 
-## web-design 1.1.0 - 2026-11-13
+## web-design 1.1.0 - 2026-11-14
 
 ### Added
 
