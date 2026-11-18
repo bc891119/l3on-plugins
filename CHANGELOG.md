@@ -3,6 +3,35 @@
 本檔格式依 [Keep a Changelog](https://keepachangelog.com/zh-TW/1.1.0/)，版本號依 [Semantic Versioning](https://semver.org/lang/zh-TW/)。
 各外掛獨立編號，git tag 為 `<外掛名>--v<版本>`。
 
+## web-design 2.0.0 - 2026-11-18
+
+### Removed
+
+- 商標檢索：刪除 `tipo_search.mjs` 與 `logo.md` 的〈商標檢索〉一節，logo 流程從 6 步變 5 步。名稱多半由使用者自己決定，查到相近的也很少改；腳本操作的是外部網站的畫面，對方改版就壞。**破壞性變更**：呼叫 `tipo_search.mjs` 的流程要改成自行到智慧財產局商標檢索系統查詢。
+- Evals：`logo` 情境刪除商標檢索的評分條件。
+- repo 首頁 README：需求與對外連線說明拿掉商標檢索，對外連線從三種變兩種。
+
+### Added
+
+- `designing-websites`：`reference/assets.md` 新增〈AI 生成圖〉。對話裡有使用者自己接上的生圖工具（MCP）時才用，沒有就畫 SVG；外掛不內建生圖、不需要金鑰。內容：風格先生 2～3 種給使用者挑、顯示尺寸與工具輸出上限先算、圖上的字以最差位置算對比、模型授權逐次確認、生完存進專案、logo 與 favicon 的成品不用生成圖。
+- `templates/ASSETS-LICENSES.md`：新增〈AI 生成素材〉表（服務、模型與授權、提示詞、日期、用途、狀態）。
+- 外掛 README：新增〈Optional: image generation〉，列出 Hugging Face 與 fal 的接法。
+
+### Changed
+
+- `designing-websites` 第 4 步：方向稿的示意圖在有生圖工具時可以用生成圖。
+- 規則只管好不好用，不規定長相。逐條對照 NN/g、Baymard、GOV.UK、Apple HIG、WCAG 與 DADS 後改寫：
+  - 表單：必填欄位都標出來（原本寫只標少的那一種，與 NN/g、Baymard 相反）；標籤位置與驗證時機補上例外。
+  - 動效：改為「有目的、約 100～500ms」，不再限定只回應操作。
+  - 首頁：拿掉「一句話價值主張、社會證明、只有一個主要行動」；刪除定價頁一條（查無一手依據）；流程第 3 步與 `new-site` 的評分條件同步把「一個主要行動」改成「主要行動」。
+  - 按鈕、儀表板分組、深色模式、閱讀欄寬、中文字型分工、圖示尺寸：拿掉指定做法，留下有依據的部分。
+  - 「唯一亮點」改為「亮點要少」（NN/g：大元素最多兩個、對比手法不超過三種）。
+  - Logo：不再限制色數、漸層、陰影與筆畫，改由黑白與小尺寸測試把關。
+  - 長時間使用的工具出現大面積高彩度色塊，由禁止改為寫出理由讓使用者決定。
+  - 使用者指定的風格與質感、同類產品普遍有的主視覺與插圖不算題材扮裝。
+- Evals：`logo` 的評分條件不再把漸層算失敗。
+- Evals：`missing-playwright` 的評審寫明「參考已下載的瀏覽器版本來選版本」不算借用現成的 Playwright，原本同樣的回答時過時不過。
+
 ## web-design 1.3.0 - 2026-11-17
 
 ### Added
