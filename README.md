@@ -2,7 +2,7 @@
 
 Claude Code plugins by L3ON. Skill content is written in Traditional Chinese.
 
-**web-design** — a human-in-the-loop website design workflow (collect references → 2–3 direction drafts → iterate → lock a `DESIGN-SYSTEM.md`), with WCAG 2.2 AA checks, asset license tracking, SVG logo export, Taiwan trademark similarity lookup, and Playwright-based UI verification.
+**web-design** — a human-in-the-loop website design workflow (collect references → 2–3 direction drafts → iterate → lock a `DESIGN-SYSTEM.md`), with WCAG 2.2 AA checks, asset license tracking, SVG logo export, and Playwright-based UI verification.
 
 ```
 /plugin marketplace add bc891119/l3on-plugins
