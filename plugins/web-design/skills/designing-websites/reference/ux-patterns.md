@@ -87,6 +87,7 @@
 - 字距隨字級調整：小字 `0.02em`，大標題 `0` 或 `0.01em`。
 - 字型：黑體、明體各管什麼由方向決定，寫進規範。數字欄位用 `tabular-nums`。
 - 中文字型多半沒有真正的斜體，是電腦硬拉斜的；強調優先用字重、顏色或著重號。
+- 標題、按鈕與短句不在詞中間斷行：用 `<wbr>` 標出可以斷的位置並加 `word-break: keep-all`（[CSS Text 4](https://www.w3.org/TR/css-text-4/#word-break-property)）；`text-wrap: balance` 讓各行長度接近（[MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/text-wrap)）。桌機與手機之間的寬度也拉幾個看。
 - 標點用全形；中英文之間的空格依專案文案規範統一。
 
 ## 元件與互動慣例

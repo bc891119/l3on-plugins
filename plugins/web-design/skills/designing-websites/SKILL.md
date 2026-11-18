@@ -72,12 +72,13 @@ argument-hint: "[要設計的網站或頁面｜logo｜素材]"
 - 截圖用內附的 `screenshot.mjs`（見〈腳本〉，不需要專案安裝任何東西）：桌機 1440 與手機 390 各一張，自己逐張用 Read 看過。結束碼不是 0 就先修，不拿壞掉的頁面去截圖與檢查。
 - 截圖工具模擬的是淺色系統（[Playwright](https://playwright.dev/docs/emulation#color-scheme-and-media)），使用者的系統可能是深色。頁面會跟著系統切深色時（元件庫可能預設開啟，例 Nuxt UI），這一步先決定：不做深色就鎖成淺色；要做就加 `--dark` 再截一輪，兩種都逐張看。
 - 每個方向先跑 `python3 ${CLAUDE_SKILL_DIR}/scripts/contrast.py <色票檔>` 檢查色票，不合格的先修。
-- 給使用者看之前，每個方向先過 [reference/direction-review.md](reference/direction-review.md) 的「通過條件」（第一眼測試、第一屏可操作元素數、使用情境、換題測試、圖示、UX 四項），結果寫進方向稿說明。不過的先改，不拿去給人挑。
+- 給使用者看之前，每個方向先過 [reference/direction-review.md](reference/direction-review.md) 的「通過條件」（第一眼測試、第一屏可操作元素數、使用情境、換題測試、圖示、UX 四項、需求文件的條件），結果寫進方向稿說明。不過的先改，不拿去給人挑。
 - 用 AskUserQuestion 請使用者選一個方向（附截圖路徑與使用者開得到的預覽網址），也可以要求混合。
 
 ### 5. 退件迭代（人工檢查點④）
 
 - 只改選定的那個畫面，每輪附截圖，並重做通過條件裡的第一眼測試與元素數。
+- 預覽網址給了使用者之後又改 CSS／JS 時，頁面裡引用這些檔案的網址加版本參數（例 `site.css?v=2`）。靜態伺服器沒送 `Cache-Control` 時，瀏覽器會自己決定沿用舊檔多久（[MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Caching)），使用者看到的會是改之前的樣子。
 - 使用者說「不好看」「很亂」但說不出原因時，用 distinctive-design.md 的「退件追問」問出具體方向，不要自己猜一輪又一輪。
 - 使用者有具體意見時照意見改；沒有意見、要自己迭代時照 direction-review.md 的〈自我退件規則〉。
 - 通常 2～3 輪。使用者明確說「可以」才進下一步。
@@ -100,7 +101,7 @@ argument-hint: "[要設計的網站或頁面｜logo｜素材]"
 1. **頁面真的畫出來了**：沒有腳本錯誤（`screenshot.mjs` 結束碼 0，或測試裡 assert 沒有 console error 與 pageerror），頂列、主要內容、主要按鈕等關鍵元素都在。這一項沒過，後面的「違規 0」沒有意義：元素沒畫出來，掃描反而全過。
 2. **色彩對比**：`python3 ${CLAUDE_SKILL_DIR}/scripts/contrast.py <色票檔>`，有不合格就改 token 再跑，直到全過。
 3. **畫面**：正式頁面照 verifying-ui skill（本外掛內，`web-design:verifying-ui`）用專案自己鎖版的 Playwright 寫測試：截桌機與手機圖並逐張看、跑 axe（含 `wcag22aa` 標籤）。專案沒有 Node 或使用者不想裝時（靜態頁、方向稿），改用內附的 `screenshot.mjs` 截圖逐張看、`axe.mjs` 掃描；抽屜、對話框、選單打開後的畫面用 `--click` 各截、各掃一次，沒掃到的在回報中註明。浮層和頁面用同一套標準逐張看：桌機與手機、空的與有內容的狀態都截；看字級、每列的圖示是否各有意義、內容有沒有被切掉、焦點樣式有沒有疊成兩層。
-4. **人工檢查**：[reference/accessibility.md](reference/accessibility.md) 的「工具抓不到」清單（焦點順序、焦點不被固定列遮住、點擊目標 24px、拖曳替代、縮放 200%／寬 320px 不破版、減少動態）。用了元件庫時，看得見的元件預設（頭像位置、hover 底色和背景同色、絕對定位的操作列）逐一確認是刻意的；自己加的全站樣式（例：焦點環）要排除元件庫已有同類樣式的元件，否則會疊成兩層。
+4. **人工檢查**：[reference/accessibility.md](reference/accessibility.md) 的「工具抓不到」清單（焦點順序、焦點環不被固定列遮住或捲動容器裁掉、點擊目標 24px、拖曳替代、縮放 200%／寬 320px 不破版、減少動態）。用了元件庫時，看得見的元件預設（頭像位置、hover 底色和背景同色、絕對定位的操作列）逐一確認是刻意的；自己加的全站樣式（例：焦點環）要排除元件庫已有同類樣式的元件，否則會疊成兩層。
 5. **UX 審查**：用 ux-patterns.md 的 NN/g 啟發式逐項過一次關鍵流程（其中四項在方向稿階段已先看過，這裡看完整流程）；每頁對照分層表，確認展開後沒有把收起來的東西又攤回第一屏。
 
 ## 腳本
@@ -110,7 +111,7 @@ argument-hint: "[要設計的網站或頁面｜logo｜素材]"
 - `contrast.py`：算 WCAG 對比。輸入檔每行一組 `前景 背景 [類型]`，類型 `text`（4.5:1，預設）、`large`（3:1，24px 或 18.66px 粗體以上）、`ui`（3:1，圖示、輸入框框線、焦點環；裝飾線與有文字的按鈕外框不必列）。色值支援 `#rgb`、`#rrggbb`、`rgb()`、`oklch()`；半透明色要先換成疊在背景上之後的實色。也可直接給兩個色值：`contrast.py "#767676" "#ffffff"`。有不合格時結束碼為 1。
 - `export_logo.py <logo.svg> <輸出資料夾> [--favicon favicon.svg]`：產出 PNG 512/256/128/64/32/16、`apple-touch-icon.png`（180）、`favicon.ico`（16/32/48）。需要一個 SVG 轉檔工具（cairosvg、rsvg-convert、ImageMagick 或 Inkscape 任一）；都沒有時腳本會印出安裝方式。
 
-- `screenshot.mjs <輸出資料夾> <網址或 HTML 檔>... [--tablet] [--dark] [--click <選擇器>]...`：每頁截桌機 1440 與手機 390 的整頁圖與第一屏圖（檔名加 `-fold`；`--tablet` 加 768；`--dark` 模擬深色系統；`--click` 先點開抽屜、選單再截；每種狀態用各自的輸出資料夾），並回報第一屏可操作元素數、有無橫向捲軸、console 錯誤與未捕捉例外的內容。有腳本錯誤時結束碼為 1（圖照截，但不算通過）。給方向稿與設計檢視用，不取代 verifying-ui 的專案驗收測試。
+- `screenshot.mjs <輸出資料夾> <網址或 HTML 檔>... [--tablet] [--size <寬>x<高>]... [--dark] [--click <選擇器>]...`：每頁截桌機 1440 與手機 390 的整頁圖與第一屏圖（檔名加 `-fold`；`--tablet` 加 768；`--size 1920x1080` 加截指定尺寸，可重複；`--dark` 模擬深色系統；`--click` 先點開抽屜、選單再截；每種狀態用各自的輸出資料夾），並回報第一屏可操作元素數、有無橫向捲軸、console 錯誤與未捕捉例外的內容。有腳本錯誤時結束碼為 1（圖照截，但不算通過）。給方向稿與設計檢視用，不取代 verifying-ui 的專案驗收測試。
 - `axe.mjs <網址或 HTML 檔>... [--open-details] [--dark] [--click <選擇器>]...`：每頁在桌機與手機尺寸各跑一次 axe-core（WCAG 2.0～2.2 的 A 與 AA），列出違規的規則與元素、需人工判斷的項目。有違規或頁面有腳本錯誤時結束碼為 1（有腳本錯誤的頁面不掃描）。只掃載入後的狀態；`--open-details` 先展開所有 `<details>`，`--click` 先點開抽屜、對話框再掃，`--dark` 模擬深色系統。
 
 ## 不要做

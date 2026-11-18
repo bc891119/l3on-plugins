@@ -19,7 +19,7 @@ A Claude Code plugin for designing websites with a human in the loop, and verify
 |---|---|---|
 | `contrast.py` | WCAG 色彩對比檢查 | Python 3 |
 | `export_logo.py` | SVG logo 匯出 PNG、favicon.ico、apple-touch-icon | Python 3＋任一 SVG 轉檔工具 |
-| `screenshot.mjs` | 桌機 1440／手機 390 整頁截圖，回報第一屏可操作元素數；頁面有腳本錯誤時結束碼 1 | Node.js（Playwright 隨外掛安裝） |
+| `screenshot.mjs` | 桌機 1440／手機 390 整頁截圖（`--size` 可加其他尺寸），回報第一屏可操作元素數；頁面有腳本錯誤時結束碼 1 | Node.js（Playwright 隨外掛安裝） |
 | `axe.mjs` | 桌機／手機尺寸的 axe-core 掃描（WCAG 2.0～2.2 A／AA），給沒有 Node 專案的靜態頁用 | 同上 |
 
 ## Dependencies

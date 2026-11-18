@@ -4,7 +4,7 @@
  * 這是看設計用的輕量截圖；專案功能的畫面驗收仍照 verifying-ui skill 用專案自己的 Playwright 測試。
  *
  * 用法：
- *   node screenshot.mjs <輸出資料夾> <網址或 HTML 檔>... [--tablet] [--dark] [--click <選擇器>]...
+ *   node screenshot.mjs <輸出資料夾> <網址或 HTML 檔>... [--tablet] [--size <寬>x<高>]... [--dark] [--click <選擇器>]...
  * 例：
  *   node screenshot.mjs shots design-explore/a/index.html design-explore/b/index.html
  *   node screenshot.mjs shots http://localhost:3000/ --tablet
@@ -12,6 +12,7 @@
  *
  * 輸出：<輸出資料夾>/<名稱>-desktop.png、-mobile.png（加 --tablet 多一張 -tablet.png）整頁圖，
  * 以及同名加 -fold 的第一屏圖（不捲動時看到的畫面；固定定位的元素在整頁圖上位置會失真，以第一屏圖為準），
+ * --size：加截指定的視窗尺寸（例 --size 1920x1080，需求文件指定解析度時用），可重複；檔名用 <寬>x<高>。
  * --dark：模擬深色系統（prefers-color-scheme: dark）；不加時是淺色。頁面會跟著系統切換時兩種都要截。
  * --click：載入後先依序點這些元素再截（抽屜、選單、分頁打開後的畫面），頁面不必為了截圖加程式；每種狀態用各自的輸出資料夾。
  * 外殼固定在視窗內、由內層面板捲動的版面，整頁圖會先把視窗拉高到看得見被捲掉的內容再截。
@@ -27,12 +28,20 @@ import { launchChromium, takeClicks, clickAll } from './browser.mjs'
 // 與 verifying-ui 相同的尺寸：桌機 1440、手機 390；平板 768 在改到版面時加看
 const VIEWPORTS = { desktop: { width: 1440, height: 900 }, mobile: { width: 390, height: 844 }, tablet: { width: 768, height: 1024 } }
 
-const { rest: args, clicks } = takeClicks(process.argv.slice(2))
+const USAGE = '用法：node screenshot.mjs <輸出資料夾> <網址或 HTML 檔>... [--tablet] [--size <寬>x<高>]... [--dark] [--click <選擇器>]...'
+const { rest: allArgs, clicks } = takeClicks(process.argv.slice(2))
+const args = []
+for (let i = 0; i < allArgs.length; i++) {
+  if (allArgs[i] !== '--size') { args.push(allArgs[i]); continue }
+  const size = /^([1-9]\d*)x([1-9]\d*)$/.exec(allArgs[++i] ?? '')
+  if (!size) { console.error(`--size 要寫成 <寬>x<高>（大於 0 的整數），例 --size 1920x1080\n${USAGE}`); process.exit(2) }
+  VIEWPORTS[size[0]] = { width: Number(size[1]), height: Number(size[2]) }
+}
 const withTablet = args.includes('--tablet')
 const colorScheme = args.includes('--dark') ? 'dark' : 'light'
 const [outDir, ...targets] = args.filter(a => a !== '--tablet' && a !== '--dark')
 if (!outDir || targets.length === 0) {
-  console.error('用法：node screenshot.mjs <輸出資料夾> <網址或 HTML 檔>... [--tablet] [--dark] [--click <選擇器>]...')
+  console.error(USAGE)
   process.exit(2)
 }
 

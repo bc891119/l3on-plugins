@@ -19,7 +19,7 @@
 | 1.4.3 對比（最低） | 一般文字 ≥ 4.5:1；大字（≥ 24px，或粗體 ≥ 18.66px）≥ 3:1。品牌色太淺時，文字用同色相較深的階（例：橘 500 當色塊、700 當文字） |
 | 1.4.11 非文字對比 | 辨識元件或狀態要靠它的才算：圖示、輸入框框線、焦點環、圖表線條 ≥ 3:1（對相鄰色）。有文字的按鈕外框、裝飾分隔線不在範圍內（[W3C](https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html)） |
 | 1.4.1 色彩使用 | 狀態、錯誤、必填、連結不能只靠顏色：加圖示、文字或底線 |
-| 2.4.7 焦點可見＋2.4.11 焦點不被遮蔽 | 定義全站焦點環 token（建議 2px 以上、≥ 3:1）；固定頂列／底列要留 `scroll-padding`，焦點元素不能被完全蓋住 |
+| 2.4.7 焦點可見＋2.4.11 焦點不被遮蔽 | 定義全站焦點環 token（建議 2px 以上、≥ 3:1）；固定頂列／底列要留 `scroll-padding`，焦點元素不能被完全蓋住（2.4.11）；焦點環完全被蓋住則屬 2.4.7 不合格（[W3C](https://www.w3.org/WAI/WCAG22/Understanding/focus-not-obscured-minimum.html)）。會捲動的容器（`overflow`）內留內距，疊在上面的元素（圖片、相鄰區塊）不蓋住焦點環 |
 | 2.5.8 目標尺寸 | 可點目標 ≥ 24×24 CSS px，或周圍留足間距；行內小元件用內距撐足點擊範圍 |
 | 2.5.7 拖曳動作 | 拖曳排序、拖曳調寬等都要有點擊替代（上下移按鈕、選單） |
 | 1.4.10 重排 | 寬 320 CSS px（等同 1280 寬放大 400%）不出現雙向捲動；資料表、程式碼可例外但要有容器捲動 |
@@ -38,7 +38,7 @@
 W3C：「No tool alone can determine if a site meets accessibility standards.」（[Evaluating Web Accessibility](https://www.w3.org/WAI/test-evaluate/)）。axe 等工具只抓得到一部分問題，而且只掃畫面上有的元素：腳本錯誤讓一整塊沒畫出來時，違規數反而變少，所以掃描前先確認頁面沒有腳本錯誤、關鍵元素都在。每批頁面人工過一次；項目涵蓋 W3C [Easy Checks](https://www.w3.org/WAI/test-evaluate/easy-checks/)：
 
 - [ ] 只用鍵盤（Tab／Shift+Tab／Enter／Space／Esc／方向鍵）能完成所有功能，焦點順序符合閱讀順序
-- [ ] 每個焦點位置都看得見焦點環，且沒被固定列、cookie 橫幅蓋住
+- [ ] 每個焦點位置都看得見焦點環，且沒被固定列、cookie 橫幅、相鄰的圖片蓋住，也沒被會捲動的容器裁掉（axe 不查這一項，按 Tab 逐個截圖看）
 - [ ] 對話框開啟時焦點進入、關閉後回到觸發按鈕，背景不能被 Tab 到
 - [ ] 純圖示按鈕都有 `aria-label`；有文字標籤的按鈕，裡面的圖示加 `aria-hidden="true"`；裝飾圖 `alt=""`，資訊圖的 alt 說出重點
 - [ ] 表單：每個欄位有可見標籤；錯誤訊息說明原因與解法，並與欄位關聯（`aria-describedby`）
