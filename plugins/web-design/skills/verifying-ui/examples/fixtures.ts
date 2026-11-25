@@ -3,7 +3,6 @@
  * 複製到專案的測試目錄（例 e2e/fixtures.ts），測試從這裡 import `test`、`expect`
  * （https://playwright.dev/docs/test-fixtures）。需要 @playwright/test 與 @axe-core/playwright。
  */
-
 import AxeBuilder from '@axe-core/playwright'
 import { test as base, expect, type Page, type TestInfo } from '@playwright/test'
 
@@ -47,8 +46,7 @@ export async function layoutProblems(page: Page): Promise<string[]> {
     }
     // 元素 box 扣掉被祖先裁切的部分（截斷的連結、捲動容器），只比實際畫出來的範圍
     const paintedBox = (el: Element) => {
-      const box = el.getBoundingClientRect()
-      let { left, top, right, bottom } = box
+      let { left, top, right, bottom } = el.getBoundingClientRect()
       for (let node = el.parentElement; node; node = node.parentElement) {
         if (getComputedStyle(node).overflowX === 'visible') continue
         const clip = node.getBoundingClientRect()
@@ -92,11 +90,10 @@ export async function layoutProblems(page: Page): Promise<string[]> {
 
     const controls = [...document.querySelectorAll('button, a[href], input, select, textarea, [role="button"]')].filter(visible)
     for (const el of controls) {
-      const style = getComputedStyle(el)
-      if ((el.textContent ?? '').trim() && style.textOverflow !== 'ellipsis' && el.scrollWidth > el.clientWidth + 1 && el.clientWidth > 0) {
+      const text = (el.textContent ?? '').trim()
+      if (text && getComputedStyle(el).textOverflow !== 'ellipsis' && el.scrollWidth > el.clientWidth + 1 && el.clientWidth > 0) {
         problems.push(`文字溢出：${label(el)}`)
       }
-      const text = (el.textContent ?? '').trim()
       if (/^[一-鿿]{2,}$/.test(text) && textLineCount(el) >= text.length) {
         problems.push(`一字一行：${label(el)}`)
       }

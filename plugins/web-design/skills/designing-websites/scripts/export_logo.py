@@ -24,7 +24,6 @@ FAVICON_SIZES = [16, 32, 48]            # 瀏覽器分頁、Windows 捷徑
 APPLE_TOUCH = 180                       # iOS 主畫面圖示
 HEX_COLOR = re.compile(r"#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})")
 
-
 INSTALL_HELP = """找不到 SVG 轉檔工具。安裝任一個後重跑：
   cairosvg      uv tool install cairosvg  或  pipx install cairosvg
   rsvg-convert  macOS: brew install librsvg ／ Debian, Ubuntu: apt install librsvg2-bin
@@ -86,38 +85,38 @@ def build_ico(pngs, out):
 
 
 def main():
-    p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("svg")
-    p.add_argument("outdir")
-    p.add_argument("--favicon", help="小尺寸用的簡化版 SVG")
-    p.add_argument("--touch-bg", default="#ffffff", help="apple-touch-icon 底色（iOS 不支援透明，預設白）")
-    a = p.parse_args()
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("svg")
+    parser.add_argument("outdir")
+    parser.add_argument("--favicon", help="小尺寸用的簡化版 SVG")
+    parser.add_argument("--touch-bg", default="#ffffff", help="apple-touch-icon 底色（iOS 不支援透明，預設白）")
+    args = parser.parse_args()
 
     # 先檢查參數再找工具：轉檔工具遇到看不懂的底色多半不報錯，會產出底色不對的圖
-    if not HEX_COLOR.fullmatch(a.touch_bg):
-        fail(f"--touch-bg 的色值不合法：{a.touch_bg}（要寫成 #rgb 或 #rrggbb，例 --touch-bg '#1f2937'）", 2)
-    for f in [a.svg] + ([a.favicon] if a.favicon else []):
+    if not HEX_COLOR.fullmatch(args.touch_bg):
+        fail(f"--touch-bg 的色值不合法：{args.touch_bg}（要寫成 #rgb 或 #rrggbb，例 --touch-bg '#1f2937'）", 2)
+    for f in [args.svg] + ([args.favicon] if args.favicon else []):
         if not os.path.isfile(f):
             fail(f"找不到 SVG：{f}", 2)
     converter = find_converter()
     if not converter:
         fail(INSTALL_HELP, 2)
-    os.makedirs(a.outdir, exist_ok=True)
-    small_src = a.favicon or a.svg
+    os.makedirs(args.outdir, exist_ok=True)
+    small_src = args.favicon or args.svg
 
     for s in LOGO_SIZES:
-        render(converter, a.svg, os.path.join(a.outdir, f"logo-{s}.png"), s)
+        render(converter, args.svg, os.path.join(args.outdir, f"logo-{s}.png"), s)
     ico_parts = []
     for s in FAVICON_SIZES:
-        out = os.path.join(a.outdir, f"logo-{s}.png")
+        out = os.path.join(args.outdir, f"logo-{s}.png")
         render(converter, small_src, out, s)
         ico_parts.append((s, out))
-    render(converter, a.svg, os.path.join(a.outdir, "apple-touch-icon.png"), APPLE_TOUCH, a.touch_bg)
-    build_ico(ico_parts, os.path.join(a.outdir, "favicon.ico"))
+    render(converter, args.svg, os.path.join(args.outdir, "apple-touch-icon.png"), APPLE_TOUCH, args.touch_bg)
+    build_ico(ico_parts, os.path.join(args.outdir, "favicon.ico"))
 
-    print(f"完成：{a.outdir}（轉檔工具 {converter[0]}）")
-    for name in sorted(os.listdir(a.outdir)):
-        print(f"  {name}  {os.path.getsize(os.path.join(a.outdir, name))} bytes")
+    print(f"完成：{args.outdir}（轉檔工具 {converter[0]}）")
+    for name in sorted(os.listdir(args.outdir)):
+        print(f"  {name}  {os.path.getsize(os.path.join(args.outdir, name))} bytes")
 
 
 if __name__ == "__main__":

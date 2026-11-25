@@ -20,9 +20,10 @@
  * 結束碼：0 沒有違規、1 有違規或有頁面出現腳本錯誤、2 用法或環境錯誤、3 有頁面開不起來。
  * 自動掃描只涵蓋一部分準則，通過不代表符合 WCAG；人工項目見 reference/accessibility.md。
  */
-import path from 'node:path'
 import { createRequire } from 'node:module'
-import { launchChromium, takeClicks, clickAll, toUrl, collectErrors, printErrors, VIEWPORTS, PLUGIN_ROOT } from './browser.mjs'
+import path from 'node:path'
+import { launchChromium, takeClicks, clickAll, toUrl, collectErrors, printErrors, NAV_TIMEOUT, VIEWPORTS, PLUGIN_ROOT } from './browser.mjs'
+
 // wcag22aa 要明列，否則不會檢查 WCAG 2.2 的目標尺寸
 const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']
 const { rest: args, clicks } = takeClicks(process.argv.slice(2))
@@ -57,7 +58,7 @@ for (const { target, url } of pages) {
     const page = await context.newPage()
     const errors = collectErrors(page)
     try {
-      const response = await page.goto(url, { waitUntil: 'networkidle', timeout: 30_000 })
+      const response = await page.goto(url, { waitUntil: 'networkidle', timeout: NAV_TIMEOUT })
       if (response && response.status() >= 400) throw new Error(`HTTP ${response.status()}`)
       await page.evaluate(() => document.fonts.ready)
       // 載入後查一次；點開抽屜、展開 details 之後再查一次：點擊才觸發的錯誤也會讓浮層沒畫出來

@@ -30,7 +30,6 @@ L3ON 的 Claude Code 外掛市集。
 
 安裝時會自動帶入相依的官方外掛 `frontend-design`。它來自官方市集 `claude-plugins-official`，Claude Code 第一次開互動式對話時會自動加入；若安裝時出現「Is the "claude-plugins-official" marketplace added?」，先執行 `/plugin marketplace add anthropics/claude-plugins-official` 再裝一次。
 
-
 ## 需求
 
 - Claude Code；模型建議用 Sonnet 或 Opus。Haiku 在使用者全權委託的長流程會漏掉步驟（例：獨立審查）
@@ -39,7 +38,6 @@ L3ON 的 Claude Code 外掛市集。
 - Chromium：第一次用截圖或無障礙掃描時下載一次（下載約 330MB、解壓後約 680MB，Linux x64 實測），腳本會印出指令
 - logo 匯出另需任一 SVG 轉檔工具：cairosvg、rsvg-convert、ImageMagick 或 Inkscape（沒有時腳本會印出安裝方式）
 - 專案的畫面驗收測試：專案自己安裝 `@playwright/test` 與 `@axe-core/playwright`（skill 會引導，並要求鎖精確版本）
-- 相依外掛：官方 `frontend-design`（來自 Claude Code 內建的官方市集 `claude-plugins-official`，安裝 web-design 時自動一併安裝）
 
 ## 這個外掛會做什麼
 

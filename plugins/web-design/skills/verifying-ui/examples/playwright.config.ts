@@ -12,7 +12,6 @@ if (!BASE_URL) throw new Error('缺環境變數 E2E_BASE_URL（要測的網站�
 /** 登入狀態檔含 session cookie，路徑要加進 .gitignore。 */
 export const AUTH_STATE = 'playwright/.auth/user.json'
 
-// 只在一種尺寸成立的測試標 @desktop／@mobile，另一種尺寸的 project 不收
 const desktop = { viewport: { width: 1440, height: 900 }, device: 'desktop' as const }
 const mobile = { viewport: { width: 390, height: 844 }, device: 'mobile' as const }
 
@@ -30,6 +29,7 @@ export default defineConfig<Options>({
     locale: 'zh-TW',
     timezoneId: 'Asia/Taipei',
   },
+  // 只在一種尺寸成立的測試標 @desktop／@mobile，另一種尺寸的 project 用 grepInvert 排除
   projects: [
     // 需要登入時啟用：auth.setup.ts 登入後存 AUTH_STATE；trace 會留下密碼，setup 不錄
     // { name: 'setup', testMatch: /auth\.setup\.ts/, use: { trace: 'off' } },

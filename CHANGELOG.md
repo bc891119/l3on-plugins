@@ -3,6 +3,22 @@
 本檔格式依 [Keep a Changelog](https://keepachangelog.com/zh-TW/1.1.0/)，版本號依 [Semantic Versioning](https://semver.org/lang/zh-TW/)。
 各外掛獨立編號，git tag 為 `<外掛名>--v<版本>`。
 
+## web-design 2.4.0 - 2026-11-25
+
+### Added
+
+- 使用者或需求指定了視覺手法或質感（例：手繪）時，風格要做到按鈕、卡片、標題等介面元件上，不只插圖；用形狀語言、圖片遮罩、字體點綴、質感表現，不拿具體物件的外觀當元件。給人挑之前多一項檢查：遮掉插圖與照片，元件仍看得出指定的風格（`distinctive-design.md`〈指定的風格〉、`direction-review.md` 第 11 項）。
+- 插圖放在區塊或入口上時，每一區的圖要對應那一區的內容，才有標示作用。
+- 有子頁的區塊要有區域導覽，醒目程度低於全域導覽（`ux-patterns.md`，依 NN/g Local Navigation）；第 8 步的 UX 審查改為逐一對照〈頁型重點〉。
+- 示範資料集中在一份資料裡，星期用程式從日期算，各頁的日期、狀態一致且和日期合理。
+- Evals：新案例 `specified-style`、`demo-content`、`illustrated-map`、`vague-feedback`；`full-delegation` 加上自我退件與長時間使用的評分條件。
+
+### Changed
+
+- 「克制」的說明補上：指定了風格時，克制指亮點少，不是不做風格。
+- `browser.mjs`：頁面載入與點擊的逾時改成具名常數並註明理由（Playwright 預設不逾時）。
+- `contrast.py`：用法說明、讀不到檔案、單次比對的色值錯誤改印到 stderr，和其他腳本一致；色票檔的逐行錯誤仍在 stdout。
+
 ## web-design 2.3.0 - 2026-11-18
 
 ### Added

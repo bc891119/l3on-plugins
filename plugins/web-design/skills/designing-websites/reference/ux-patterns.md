@@ -68,6 +68,7 @@
 - **儀表板／工具型產品**：最常用的任務放在第一層，其餘照〈資訊分層〉收；分組先試留白，不夠再加框（[NN/g](https://www.nngroup.com/articles/common-region/)）；空狀態說明下一步；表格支援排序、篩選、欄寬。
 - **電商**：商品頁、搜尋、購物車、結帳依 [Baymard](https://baymard.com/research/methodology) 的研究（例如允許訪客結帳、運費提早揭露、商品圖可放大）。做電商時上網查 Baymard 對應主題的公開文章。
 - **內容／文件**：閱讀欄寬以約 40 個全形字為參考值（[DADS](https://design.digital.go.jp/dads/foundations/typography/accessibility/)；WCAG 1.4.8 是 AAA），有摘要、標題幫助閱讀時可以更寬；目錄可跳轉；標題層級清楚。
+- **有子頁的區塊**（例：「服務項目」底下有幾頁）：內頁要有區域導覽，列出同一區的其他頁並標出目前這頁，讓人知道自己在哪、旁邊還有什麼。桌機放在全域導覽正下方（橫排）或內容左側；醒目程度低於全域導覽，視覺層級跟著資訊層級。它佔版面，子頁很少、使用者多半直接找特定頁時可以不放（[NN/g](https://www.nngroup.com/articles/local-navigation/)）。
 
 ## 中文排版
 

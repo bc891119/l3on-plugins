@@ -105,16 +105,16 @@ def main(argv):
         try:
             return 0 if check(argv[0], argv[1], argv[2] if len(argv) == 3 else "text") else 1
         except ValueError as e:
-            print(e)
+            print(e, file=sys.stderr)
             return 2
     if len(argv) != 1:
-        print(__doc__)
+        print(__doc__, file=sys.stderr)
         return 2
     try:
         with open(argv[0], encoding="utf-8") as f:
             lines = f.readlines()
     except (OSError, UnicodeDecodeError) as e:
-        print(f"讀不到檔案「{argv[0]}」：{e}")
+        print(f"讀不到檔案「{argv[0]}」：{e}", file=sys.stderr)
         return 2
     all_ok, bad, n = True, 0, 0
     for lineno, raw in enumerate(lines, 1):

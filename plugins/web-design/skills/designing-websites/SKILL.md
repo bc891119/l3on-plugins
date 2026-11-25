@@ -65,8 +65,9 @@ allowed-tools: Bash(python3 ${CLAUDE_SKILL_DIR}/scripts/contrast.py *) Bash(pyth
 
 讀 [reference/distinctive-design.md](reference/distinctive-design.md) 再發想。
 
-- 特色先從資訊安排與排版來，再色彩，最後才是圖形；借實物只取原則與功能，不取外觀。
+- 特色先從資訊安排與排版來，再色彩，最後才是圖形；借實物只取原則與功能，不取外觀。使用者或需求指定了視覺手法或質感（例：手繪）時，要做到按鈕、卡片、標題等介面元件上，不只插圖（distinctive-design.md〈指定的風格〉）。
 - 每個方向只做**一個關鍵畫面**（首頁第一屏，或工具型產品最常用的畫面），用真實內容，不用佔位文字。圖示在這一步就決定並畫上去，主要動作配看得到的文字標籤（ux-patterns.md〈圖示〉），不留到第 7 步。
+- 示範資料（日期、活動、地點、名額）集中在一份資料裡，頁面從它產生；星期用程式從日期算（例 `new Date('2026-12-06T00:00').toLocaleDateString('zh-TW', { weekday: 'short' })`），不手寫。字串要帶時間：只有日期的字串（`'2026-12-06'`）會被當成 UTC，在 UTC 以西的時區會算成前一天（[MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date#date_time_string_format)）。第 8 步展開的頁面沿用同一份，同一個活動在各頁的日期與狀態才會一致；狀態要和日期合理（例：還沒開放報名就不會有報名人數）。
 - 方向之間的**資訊安排**要不同，不只換顏色字型；至少一個方向是「第一屏只留主要任務」的版本。
 - 同類產品普遍有主視覺或插圖時，方向稿就放上示意圖（自己畫 SVG；對話裡有生圖工具時可以用，見 reference/assets.md〈AI 生成圖〉），說明裡寫正式素材打算怎麼來，不留到第 7 步。示意圖是自己畫的 SVG 時，照 assets.md〈AI 生成圖〉在這一句提一次生圖工具的選項。
 - 方向稿放專案內不進版控的目錄（例 `design-explore/<方向名>/`，是 git repo 時加進 `.gitignore`），靜態 HTML 即可。專案已選定元件庫（例 Nuxt UI、MUI）時改用元件庫做，元件的預設長相與行為才會出現在畫面上。
@@ -103,7 +104,7 @@ allowed-tools: Bash(python3 ${CLAUDE_SKILL_DIR}/scripts/contrast.py *) Bash(pyth
 2. **色彩對比**：`python3 ${CLAUDE_SKILL_DIR}/scripts/contrast.py <色票檔>`，有不合格就改 token 再跑，直到全過。
 3. **畫面**：正式頁面照 verifying-ui skill（本外掛內，`web-design:verifying-ui`）用專案自己鎖版的 Playwright 寫測試：截桌機與手機圖並逐張看、跑 axe（含 `wcag22aa` 標籤）。專案沒有 Node 或使用者不想裝時（靜態頁、方向稿），改用內附的 `screenshot.mjs` 截圖逐張看、`axe.mjs` 掃描；抽屜、對話框、選單打開後的畫面用 `--click` 各截、各掃一次，沒掃到的在回報中註明。浮層和頁面用同一套標準逐張看：桌機與手機、空的與有內容的狀態都截；看字級、每列的圖示是否各有意義、內容有沒有被切掉、焦點樣式有沒有疊成兩層。
 4. **人工檢查**：[reference/accessibility.md](reference/accessibility.md) 的「工具抓不到」清單（焦點順序、焦點環不被固定列遮住或捲動容器裁掉、點擊目標 24px、拖曳替代、縮放 200%／寬 320px 不破版、減少動態）。用了元件庫時，看得見的元件預設（頭像位置、hover 底色和背景同色、絕對定位的操作列）逐一確認是刻意的；自己加的全站樣式（例：焦點環）要排除元件庫已有同類樣式的元件，否則會疊成兩層。
-5. **UX 審查**：用 ux-patterns.md 的 NN/g 啟發式逐項過一次關鍵流程（其中四項在方向稿階段已先看過，這裡看完整流程）；每頁對照分層表，確認展開後沒有把收起來的東西又攤回第一屏。
+5. **UX 審查**：用 ux-patterns.md 的 NN/g 啟發式逐項過一次關鍵流程（其中四項在方向稿階段已先看過，這裡看完整流程）；每頁對照分層表，確認展開後沒有把收起來的東西又攤回第一屏；每種頁型對照 ux-patterns.md〈頁型重點〉（例：有子頁的區塊要有區域導覽）。
 
 ## 腳本
 

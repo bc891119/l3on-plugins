@@ -11,7 +11,7 @@
  *   node screenshot.mjs shots/history design-explore/a/index.html --click '#open-history'
  *
  * 輸出：<輸出資料夾>/<名稱>-desktop.png、-mobile.png（加 --tablet 多一張 -tablet.png）整頁圖，
- * 以及同名加 -fold 的第一屏圖（不捲動時看到的畫面；固定定位的元素在整頁圖上位置會失真，以第一屏圖為準），
+ * 以及同名加 -fold 的第一屏圖（不捲動時看到的畫面；固定定位的元素在整頁圖上位置會失真，以第一屏圖為準）。
  * --size：加截指定的視窗尺寸（例 --size 1920x1080，需求文件指定解析度時用），可重複；檔名用 <寬>x<高>。
  * --dark：模擬深色系統（prefers-color-scheme: dark）；不加時是淺色。頁面會跟著系統切換時兩種都要截。
  * --click：載入後先依序點這些元素再截（抽屜、選單、分頁打開後的畫面），頁面不必為了截圖加程式；每種狀態用各自的輸出資料夾。
@@ -22,7 +22,7 @@
  */
 import fs from 'node:fs'
 import path from 'node:path'
-import { launchChromium, takeClicks, clickAll, toUrl, collectErrors, printErrors, VIEWPORTS as BASE_VIEWPORTS } from './browser.mjs'
+import { launchChromium, takeClicks, clickAll, toUrl, collectErrors, printErrors, NAV_TIMEOUT, VIEWPORTS as BASE_VIEWPORTS } from './browser.mjs'
 
 const VIEWPORTS = { ...BASE_VIEWPORTS }
 
@@ -79,7 +79,7 @@ for (const { target, url, name } of pages) {
     const errors = collectErrors(page)
     const file = path.join(outDir, `${name}-${device}.png`)
     try {
-      const response = await page.goto(url, { waitUntil: 'networkidle', timeout: 30_000 })
+      const response = await page.goto(url, { waitUntil: 'networkidle', timeout: NAV_TIMEOUT })
       if (response && response.status() >= 400) throw new Error(`HTTP ${response.status()}`)
       await page.evaluate(() => document.fonts.ready) // 字型載入後再截，避免截到備援字型
       await clickAll(page, clicks)

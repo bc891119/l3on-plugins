@@ -12,6 +12,10 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 // scripts → designing-websites → skills → 外掛根目錄
 export const PLUGIN_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..')
 
+// Playwright 的 goto 與 click 預設不逾時（timeout 0），開不起來的頁面、寫錯的選擇器會一直等：goto 等 30 秒、click 等 5 秒就記成失敗
+export const NAV_TIMEOUT = 30_000
+const CLICK_TIMEOUT = 5_000
+
 // 與 verifying-ui 相同的尺寸：桌機 1440、手機 390；平板 768 在改到版面時加看
 export const VIEWPORTS = { desktop: { width: 1440, height: 900 }, mobile: { width: 390, height: 844 }, tablet: { width: 768, height: 1024 } }
 
@@ -26,7 +30,7 @@ export function toUrl(target) {
 export function collectErrors(page) {
   const errors = []
   page.on('console', (message) => { if (message.type() === 'error') errors.push(`console: ${message.text()}`) })
-  page.on('pageerror', (error) => { errors.push(`例外: ${error.message}`) })
+  page.on('pageerror', (error) => { errors.push(`例外：${error.message}`) })
   return errors
 }
 
@@ -50,7 +54,7 @@ export function takeClicks(args) {
 
 /** 依序點擊；找不到元素會丟錯，由呼叫端記成失敗。點完等進場動畫跑完，否則會截到、掃到淡入一半的浮層。 */
 export async function clickAll(page, clicks) {
-  for (const selector of clicks) await page.locator(selector).first().click({ timeout: 5_000 })
+  for (const selector of clicks) await page.locator(selector).first().click({ timeout: CLICK_TIMEOUT })
   if (clicks.length === 0) return
   await page.evaluate(async () => {
     await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))) // 等框架把浮層畫出來、動畫開始
@@ -60,6 +64,7 @@ export async function clickAll(page, clicks) {
   })
 }
 
+/** 載入外掛自帶的 Playwright 並啟動 Chromium；套件或瀏覽器還沒裝時印出安裝指令，結束碼 2。 */
 export async function launchChromium() {
   let chromium
   try {
