@@ -15,6 +15,11 @@
           "marketplace": "claude-plugins-official"
         }
       ]
+    },
+    {
+      "name": "dev-workflow",
+      "source": "./plugins/dev-workflow",
+      "description": "Commit message rules (Conventional Commits with a width checker) and pre-commit code review triage. Skills are written in Traditional Chinese. Commit message 規範與 code review 分級。"
     }
   ],
   "allowCrossMarketplaceDependenciesOn": [

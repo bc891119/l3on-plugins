@@ -1,0 +1,10 @@
+diff --git a/orders/views.py b/orders/views.py
+--- a/orders/views.py
++++ b/orders/views.py
+@@ -10,6 +10,7 @@ class OrderExportView(LoginRequiredMixin, View):
+     def get(self, request):
+-        rows = Order.objects.visible_to(request.user).order_by('-id')
++        rows = Order.objects.all().order_by('-id')
++        status = request.GET.get('status', 'open')
++        rows = rows.filter(status=status)
+         return export_csv(rows)

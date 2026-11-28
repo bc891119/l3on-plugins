@@ -1,0 +1,18 @@
+{
+  "name": "dev-workflow",
+  "description": "Commit message rules (Conventional Commits with a width checker) and pre-commit code review triage. Skills are written in Traditional Chinese. Commit message 規範與 code review 分級。",
+  "version": "1.0.0",
+  "author": {
+    "name": "L3ON"
+  },
+  "displayName": "Dev Workflow",
+  "keywords": [
+    "git",
+    "commit-message",
+    "conventional-commits",
+    "code-review"
+  ],
+  "license": "MIT",
+  "repository": "https://github.com/bc891119/l3on-plugins",
+  "homepage": "https://github.com/bc891119/l3on-plugins#readme"
+}

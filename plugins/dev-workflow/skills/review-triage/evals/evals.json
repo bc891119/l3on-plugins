@@ -1,0 +1,41 @@
+{
+  "skill_name": "review-triage",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "/code-review 回了這 5 條 findings，diff 在 evals/files/order-export.diff，修改後程式碼在 evals/files/order-export.context.md。請照 skill 分級並說明怎麼處理，不用真的改檔。\n1. orders/views.py:12 匯出沒經過 visible_to，跨部門看得到訂單。\n2. orders/views.py:19 清單頁也沒經過 visible_to。\n3. orders/views.py:13 變數 status 建議改名 order_status。\n4. orders/views.py:14 未來如果 status 要支援多選，這裡會不夠用，建議先抽成 filter class。\n5. status 傳非法值會讓伺服器 500。",
+      "expected_output": "第 1 條是 A；第 2 條是修改前就存在的問題；第 3、4 條不採納；第 5 條查證後不成立。",
+      "files": ["evals/files/order-export.diff", "evals/files/order-export.context.md"],
+      "assertions": [
+        "第 1 條（views.py:12）分到擋提交的 A 級並要在本輪修",
+        "第 2 條（views.py:19）明確歸為既有問題或修改前就存在，不修進這次 commit，改為記錄或提醒",
+        "第 3 條、第 4 條都不採納，各有一行理由",
+        "第 5 條對照提供的程式內容後判定不成立，理由提到非法值只會查不到資料",
+        "修第 1 條時要求檢查同一類問題（其他沒經過 visible_to 的查詢），不只改那一行"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "這個功能已經 review 修了 3 輪（第 1、2、3 輪都有修正）。第 3 輪修完再審又出現一條新的 A 類：匯入流程併發時會重複寫入。請照 skill 說明下一步，不用真的改檔。",
+      "expected_output": "達到輪數上限，停下來告知使用者並建議重新考慮做法，不再自行修第 4 輪。",
+      "files": [],
+      "assertions": [
+        "明確指出已達 3 輪上限",
+        "停下來把這條 A 類告訴使用者，不自行繼續修",
+        "建議重新考慮做法"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "第 1 輪修了 2 個 A 類，現在要再審。已不採納 2 條、列 B 類 1 條。修正還沒 commit。請照 skill 寫出實際要怎麼做這次再審，包含用什麼工具、傳什麼內容，不用真的執行。",
+      "expected_output": "把修正 diff 存到 scratchpad，交給 dev-workflow:change-reviewer subagent，並附已判定清單。",
+      "files": [],
+      "assertions": [
+        "把本輪修正的 diff 存成檔案",
+        "用 dev-workflow:change-reviewer subagent 再審，不是把文字指示接在 /code-review 後面",
+        "連同已判定清單（不採納與 B 類）一起交出去，避免重複提出",
+        "只審本輪修正，不重審全部"
+      ]
+    }
+  ]
+}

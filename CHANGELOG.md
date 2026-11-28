@@ -3,6 +3,12 @@
 本檔格式依 [Keep a Changelog](https://keepachangelog.com/zh-TW/1.1.0/)，版本號依 [Semantic Versioning](https://semver.org/lang/zh-TW/)。
 各外掛獨立編號，git tag 為 `<外掛名>--v<版本>`。
 
+## dev-workflow 1.0.0 - 2026-11-28
+
+### Added
+
+- 新外掛 `dev-workflow`：`commit-message`（Conventional Commits 1.0.0 的寫法、反例與寬度檢查腳本 `check.py`）與 `review-triage`（`/code-review` 結果的分級、驗證、修正範圍、再審與最多 3 輪的停止條件，附 skill-creator 格式的 evals），以及再審用的唯讀 agent `change-reviewer`（Read、Grep、Glob）。專案可以在 `.claude/settings.json` 宣告，協作者裝好就有。
+
 ## web-design 2.4.0 - 2026-11-25
 
 ### Added
